@@ -1,6 +1,6 @@
 const BASE_URL = "http://localhost:8080/auth";
 
-// Mapeia mensagens de erro do backend para textos amigáveis
+// Mapeia mensagens de erro do backend
 function friendlyError(raw, context) {
   const msg = (raw || "").toLowerCase();
 
