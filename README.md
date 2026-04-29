@@ -7,7 +7,6 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
 ![TLS](https://img.shields.io/badge/TLS-HTTPS-green?logo=letsencrypt)
-![LGPD](https://img.shields.io/badge/Conformidade-LGPD-blueviolet)
 
 ---
 
