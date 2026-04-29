@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login — SeuaOficinaDemo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: #f5f5f0;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e0e0d8;
+    border-radius: 12px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .brand {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 28px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 6px;
+  }
+
+  input {
+    width: 100%;
+    border: 1px solid #d8d8d0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1a1a1a;
+    background: #fafafa;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    margin-bottom: 18px;
+  }
+
+  input:focus {
+    border-color: #1a1a1a;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn-primary:hover { background: #333; }
+  .btn-primary:active { transform: scale(0.99); }
+  .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+
+  .msg {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: none;
+  }
+  .msg.error   { background: #fff2f2; border: 1px solid #fca5a5; color: #b91c1c; display: block; }
+  .msg.success { background: #f0fdf4; border: 1px solid #86efac; color: #15803d; display: block; }
+
+  .links {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    color: #666;
+  }
+  .links a { color: #1a1a1a; font-weight: 500; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+  .links a:hover { border-bottom-color: #1a1a1a; }
+
+  .divider { border: none; border-top: 1px solid #e8e8e0; margin: 22px 0 0; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">SuaOficinaDemo</div>
+  <h1>Entrar</h1>
+  <p class="subtitle">Acesse sua conta</p>
+
+  <form id="loginForm">
+    <label for="email">E-mail</label>
+    <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email"/>
+
+    <label for="password">Senha</label>
+    <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password"/>
+
+    <button type="submit" class="btn-primary" id="btnLogin">Entrar</button>
+  </form>
+
+  <div id="twofa-section" style="display:none; margin-top:16px;">
+    <label for="code">Código do Google Authenticator</label>
+    <input type="text" id="code" placeholder="Digite o código" />
+    <button id="btn2FA" class="btn-primary" style="margin-top:10px;">Validar código</button>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <hr class="divider"/>
+  <div class="links">
+    <span>Não tem conta? <a href="register.html">Cadastre-se</a></span>
+    <a href="forgot-password.html">Esqueci minha senha</a>
+  </div>
+</div>
+
+<script type="module">
+  import { login, verify2FA } from './api.js';
+
+  const form = document.getElementById('loginForm');
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('btnLogin');
+  const btn2FA = document.getElementById('btn2FA');
+
+  // Se já estiver logado, redireciona
+  if (sessionStorage.getItem('user')) {
+    window.location.href = 'dashboard.html';
+  }
+
+  // LOGIN
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+    msg.className = 'msg';
+
+    try {
+      const result = await login(email, password);
+
+      // 🔐 SE TIVER 2FA
+      if (result.requires2FA) {
+        msg.className = 'msg success';
+        msg.textContent = 'Digite o código do Google Authenticator';
+
+        document.getElementById('twofa-section').style.display = 'block';
+
+        sessionStorage.setItem('tempEmail', email);
+
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+        return;
+      }
+
+      // ✅ LOGIN NORMAL
+      sessionStorage.setItem('user', JSON.stringify(result));
+      msg.className = 'msg success';
+      msg.textContent = 'Login realizado. Redirecionando...';
+
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 900);
+
+    } catch (err) {
+      msg.className = 'msg error';
+      msg.textContent = err.message;
+
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    }
+  });
+
+  // 🔐 2FA (SEPARADO DO LOGIN)
+  btn2FA.addEventListener('click', async () => {
+    const code = document.getElementById('code').value;
+    const email = sessionStorage.getItem('tempEmail');
+
+    try {
+      const user = await verify2FA(email, code);
+
+      sessionStorage.removeItem('tempEmail');
+      sessionStorage.setItem('user', JSON.stringify(user));
+
+      msg.className = 'msg success';
+      msg.textContent = '2FA validado. Redirecionando...';
+
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 900);
+
+    } catch (err) {
+      msg.className = 'msg error';
+      msg.textContent = err.message;
+    }
+  });
+</script>
+</body>
+</html>

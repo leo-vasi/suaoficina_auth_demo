@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard — SuaOficinaDemo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: #f5f5f0;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: #fff;
+    border-bottom: 1px solid #e0e0d8;
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .brand { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #888; }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .user-email { font-size: 13px; color: #444; }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid #d8d8d0;
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-logout:hover { border-color: #b91c1c; color: #b91c1c; }
+
+  /* ── Layout ── */
+  main {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 36px 24px;
+  }
+
+  .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .page-sub   { font-size: 14px; color: #666; margin-bottom: 32px; }
+
+  /* ── Sessão info ── */
+  .session-card {
+    background: #fff;
+    border: 1px solid #e0e0d8;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .session-card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .info-table { width: 100%; border-collapse: collapse; }
+  .info-table tr { border-bottom: 1px solid #f0f0e8; }
+  .info-table tr:last-child { border-bottom: none; }
+  .info-table td { padding: 9px 4px; font-size: 13px; }
+  .info-table td:first-child { color: #666; width: 140px; }
+  .info-table td:last-child { font-weight: 500; word-break: break-all; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge.on  { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+  .badge.off { background: #f5f5f0; color: #888;    border: 1px solid #e0e0d8; }
+
+  /* ── Grid de painéis ── */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 580px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: #fff;
+    border: 1px solid #e0e0d8;
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .panel h2 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .panel .panel-desc { font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+
+  label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
+
+  input {
+    width: 100%;
+    border: 1px solid #d8d8d0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1a1a1a;
+    background: #fafafa;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    margin-bottom: 14px;
+  }
+  input:focus { border-color: #1a1a1a; background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
+
+  .btn {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.99); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-dark  { background: #1a1a1a; color: #fff; }
+  .btn-dark:hover { background: #333; }
+  .btn-outline { background: transparent; border: 1px solid #d8d8d0; color: #444; margin-top: 10px; }
+  .btn-outline:hover { border-color: #1a1a1a; color: #1a1a1a; }
+
+  .msg { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none; }
+  .msg.error   { background: #fff2f2; border: 1px solid #fca5a5; color: #b91c1c; display: block; }
+  .msg.success { background: #f0fdf4; border: 1px solid #86efac; color: #15803d; display: block; }
+
+  .secret-box {
+    margin-top: 12px;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    font-family: monospace;
+    color: #78350f;
+    word-break: break-all;
+    display: none;
+  }
+  .secret-box .secret-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #92400e; margin-bottom: 4px; }
+
+  .no-session {
+    text-align: center;
+    padding: 16px 0;
+    font-size: 14px;
+    color: #888;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SuaOficinaDemo</div>
+  <div class="header-right">
+    <span class="user-email" id="headerEmail"></span>
+    <button class="btn-logout" id="btnLogout">Sair</button>
+  </div>
+</header>
+
+<main>
+  <div class="page-title">Dashboard</div>
+  <p class="page-sub">Gerencie sua conta e teste as funcionalidades de segurança.</p>
+
+  <!-- Sessão -->
+  <div class="session-card">
+    <h2>🔐 Sessão atual</h2>
+    <div id="sessionContent">
+      <p class="no-session">Nenhuma sessão ativa. <a href="index.html" style="color:#1a1a1a;font-weight:500;">Faça login</a>.</p>
+    </div>
+    <button class="btn btn-outline" id="btnValidateSession" style="display:none">Validar sessão</button>
+    <div class="msg" id="msgSession"></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- 2FA -->
+    <div class="panel">
+      <h2>🛡️ Autenticação de dois fatores</h2>
+      <p class="panel-desc">Ative o 2FA e depois insira o código do aplicativo autenticador para validar.</p>
+
+      <button class="btn btn-dark" id="btnEnable2FA">Ativar 2FA</button>
+      <div class="secret-box" id="secretBox">
+        <div class="secret-label">Chave secreta</div>
+        <div id="secretValue"></div>
+      </div>
+      <div class="msg" id="msgEnable"></div>
+
+      <div style="margin-top: 20px;">
+        <label for="codeInput">Código 2FA (6 dígitos)</label>
+        <input type="number" id="codeInput" placeholder="123456"/>
+        <button class="btn btn-dark" id="btnVerify2FA">Validar código</button>
+        <div class="msg" id="msgVerify"></div>
+      </div>
+    </div>
+
+    <!-- Recuperação -->
+    <div class="panel">
+      <h2>🔑 Recuperação de senha</h2>
+      <p class="panel-desc">Solicite um token de recuperação por e-mail e redefina sua senha com segurança.</p>
+      <a href="forgot-password.html"
+         style="display:block; text-align:center; background:#1a1a1a; color:#fff;
+                border-radius:8px; padding:10px; font-size:13px; font-weight:600;
+                text-decoration:none; transition:background 0.15s;">
+        Ir para recuperação de senha →
+      </a>
+    </div>
+
+    <!-- Direitos do titular -->
+    <div class="panel">
+      <h2>⚖️ Meus dados (LGPD)</h2>
+      <p class="panel-desc">Exporte seus dados, revogue seu consentimento ou delete sua conta.</p>
+
+      <button class="btn btn-dark" id="btnExport">Exportar meus dados</button>
+      <div class="msg" id="msgExport"></div>
+
+      <button class="btn btn-outline" id="btnRevoke">Revogar consentimento</button>
+      <div class="msg" id="msgRevoke"></div>
+
+      <button class="btn btn-outline" id="btnDelete" style="border-color:#fca5a5; color:#b91c1c; margin-top:10px;">Deletar minha conta</button>
+      <div class="msg" id="msgDelete"></div>
+    </div>
+
+  </div>
+</main>
+
+<script type="module">
+  import { enable2FA, verify2FA, validateSession, exportData, revokeConsent, deleteAccount } from './api.js';
+
+    // ── Guarda de autenticação ───────────────────────────────
+    const raw  = sessionStorage.getItem('user');
+    const user = raw ? JSON.parse(raw) : null;
+
+    if (!user) {
+      window.location.href = 'index.html';
+    }
+
+    // ── Popula header e sessão ───────────────────────────────
+    document.getElementById('headerEmail').textContent = user?.email || '';
+
+    if (user) {
+      const rows = [
+        ['ID',            user.id            ?? '—'],
+        ['E-mail',        user.email          ?? '—'],
+        ['Session Token', user.sessionToken   ?? '—'],
+        ['Expiração',     user.sessionExpiry  ?? '—'],
+        ['2FA ativo',     user.twoFactorEnabled ? '<span class="badge on">Sim</span>' : '<span class="badge off">Não</span>'],
+      ];
+
+      document.getElementById('sessionContent').innerHTML =
+        `<table class="info-table">
+          ${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
+        </table>`;
+
+      if (user.sessionToken) {
+        document.getElementById('btnValidateSession').style.display = 'block';
+      }
+    }
+
+    // ── Logout ───────────────────────────────────────────────
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      sessionStorage.removeItem('user');
+      window.location.href = 'index.html';
+    });
+
+    // ── Validar sessão ───────────────────────────────────────
+    document.getElementById('btnValidateSession').addEventListener('click', async () => {
+      const msg = document.getElementById('msgSession');
+      msg.className = 'msg';
+
+      try {
+        const valid = await validateSession(user.sessionToken);
+        msg.className = valid ? 'msg success' : 'msg error';
+        msg.textContent = valid
+          ? 'Sessão válida.'
+          : 'Sessão inválida ou expirada. Faça login novamente.';
+
+        if (!valid) {
+          setTimeout(() => {
+            sessionStorage.removeItem('user');
+            window.location.href = 'index.html';
+          }, 2500);
+        }
+      } catch (err) {
+        msg.className = 'msg error';
+        msg.textContent = err.message;
+      }
+    });
+
+    // ── Ativar 2FA ───────────────────────────────────────────
+    document.getElementById('btnEnable2FA').addEventListener('click', async () => {
+      const btn       = document.getElementById('btnEnable2FA');
+      const secretBox = document.getElementById('secretBox');
+      const secretVal = document.getElementById('secretValue');
+      const msg       = document.getElementById('msgEnable');
+
+      btn.disabled = true;
+      btn.textContent = 'Ativando...';
+      msg.className = 'msg';
+      secretBox.style.display = 'none';
+
+      try {
+        const key = await enable2FA(user.email);
+        secretVal.textContent = key;
+        secretBox.style.display = 'block';
+        msg.className = 'msg success';
+        msg.textContent = '2FA ativado! Use a chave acima no aplicativo autenticador.';
+      } catch (err) {
+        msg.className = 'msg error';
+        msg.textContent = err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Ativar 2FA';
+      }
+    });
+
+    // ── Verificar código 2FA ─────────────────────────────────
+    document.getElementById('btnVerify2FA').addEventListener('click', async () => {
+      const btn  = document.getElementById('btnVerify2FA');
+      const code = parseInt(document.getElementById('codeInput').value.trim(), 10);
+      const msg  = document.getElementById('msgVerify');
+
+      if (!code || isNaN(code)) {
+        msg.className = 'msg error';
+        msg.textContent = 'Insira um código de 6 dígitos válido.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+      msg.className = 'msg';
+
+      try {
+        const valid = await verify2FA(user.email, code);
+        msg.className = valid ? 'msg success' : 'msg error';
+        msg.textContent = valid
+          ? 'Código válido! 2FA verificado com sucesso.'
+          : 'Código inválido ou expirado. Tente novamente.';
+      } catch (err) {
+        msg.className = 'msg error';
+        msg.textContent = err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Validar código';
+      }
+    });
+
+  // ── Exportar dados ───────────────────────────────────────
+document.getElementById('btnExport').addEventListener('click', async () => {
+  const msg = document.getElementById('msgExport');
+  try {
+    const data = await exportData(user.email);
+    msg.className = 'msg success';
+    msg.textContent = data;
+  } catch (err) {
+    msg.className = 'msg error';
+    msg.textContent = err.message;
+  }
+});
+
+// ── Revogar consentimento ────────────────────────────────
+document.getElementById('btnRevoke').addEventListener('click', async () => {
+  const msg = document.getElementById('msgRevoke');
+  try {
+    const res = await revokeConsent(user.email);
+    msg.className = 'msg success';
+    msg.textContent = res;
+  } catch (err) {
+    msg.className = 'msg error';
+    msg.textContent = err.message;
+  }
+});
+
+// ── Deletar conta ────────────────────────────────────────
+document.getElementById('btnDelete').addEventListener('click', async () => {
+  const msg = document.getElementById('msgDelete');
+  if (!confirm('Tem certeza? Esta ação é irreversível.')) return;
+  try {
+    const res = await deleteAccount(user.email);
+    msg.className = 'msg success';
+    msg.textContent = res;
+    setTimeout(() => {
+      sessionStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }, 2000);
+  } catch (err) {
+    msg.className = 'msg error';
+    msg.textContent = err.message;
+  }
+});
+</script>
+</body>
+</html>
