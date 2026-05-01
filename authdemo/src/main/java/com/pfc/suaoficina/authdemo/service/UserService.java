@@ -15,19 +15,30 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Camada de negócio do sistema.
+ * Aqui ficam todas as regras: cadastro, login, 2FA, recuperação de senha e LGPD.
+ */
 @Service
 public class UserService {
 
+    // Logger pra acompanhar o que acontece (útil pra debug e auditoria)
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
+    // Dependências principais: acesso ao banco e codificador de senha
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    // Construtor - Spring injeta o repository automaticamente
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    /**
+     * Cria um novo usuário no sistema.
+     * Antes de salvar, verifica se o e-mail já existe e criptografa a senha.
+     */
     public User register(String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
             log.warn("[REGISTRO] Tentativa de cadastro com e-mail já existente: {}", email);
@@ -44,6 +55,11 @@ public class UserService {
         return saved;
     }
 
+    /**
+     * Autentica o usuário.
+     * - Bloqueia a conta após 5 tentativas erradas (desbloqueia em 5min)
+     * - Se tiver 2FA ativo, pede o código antes de liberar a sessão
+     */
     public User login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
@@ -51,6 +67,7 @@ public class UserService {
                     return new RuntimeException("Usuário não encontrado");
                 });
 
+        // Verifica se a conta tá bloqueada
         if (user.getAccountLocked()) {
             if (user.getLockTime().plusMinutes(5).isAfter(LocalDateTime.now())) {
                 log.warn("[LOGIN] Tentativa de acesso em conta bloqueada: {}", email);
@@ -61,6 +78,7 @@ public class UserService {
             }
         }
 
+        // Valida a senha (BCrypt compara o hash)
         if (!passwordEncoder.matches(password, user.getPassword())) {
             int attempts = user.getFailedAttempts() + 1;
             user.setFailedAttempts(attempts);
@@ -77,15 +95,18 @@ public class UserService {
             throw new RuntimeException("Senha inválida");
         }
 
+        // Acertou a senha - reseta os contadores
         user.setFailedAttempts(0);
         user.setAccountLocked(false);
 
+        // Se tem 2FA ativo, não cria sessão ainda (aguarda o código)
         if (Boolean.TRUE.equals(user.getTwoFactorEnabled())) {
             userRepository.save(user);
             log.info("[LOGIN] 2FA necessário para: {}", email);
             throw new RuntimeException("2FA_REQUIRED");
         }
 
+        // Gera token de sessão válido por 10 minutos
         String sessionToken = UUID.randomUUID().toString();
         user.setSessionToken(sessionToken);
         user.setSessionExpiration(LocalDateTime.now().plusMinutes(10));
@@ -95,6 +116,10 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Ativa o 2FA pro usuário.
+     * Retorna a chave secreta que vai virar QR Code pro app autenticador.
+     */
     public String enable2FA(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -110,6 +135,10 @@ public class UserService {
         return key.getKey();
     }
 
+    /**
+     * Verifica o código de 6 dígitos do Google Authenticator.
+     * Se válido, completa o login gerando o token de sessão.
+     */
     public User verify2FA(String email, int code) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -131,6 +160,10 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Inicia recuperação de senha (esqueci minha senha).
+     * Gera um token e envia por e-mail, válido por 10 minutos.
+     */
     public String requestPasswordReset(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -145,6 +178,10 @@ public class UserService {
         return "E-mail de recuperação enviado";
     }
 
+    /**
+     * Troca a senha usando o token recebido por e-mail.
+     * TODO: Criar método findByResetToken no repository (evitar o findAll)
+     */
     public void resetPassword(String token, String newPassword) {
         User user = userRepository.findAll()
                 .stream()
@@ -169,6 +206,11 @@ public class UserService {
         log.info("[RESET] Senha redefinida com sucesso para: {}", user.getEmail());
     }
 
+    /**
+     * Verifica se um token de sessão ainda é válido.
+     * Útil pro frontend saber se o usuário continua logado.
+     * TODO: Criar método findBySessionToken no repository
+     */
     public boolean validateSession(String token) {
         User user = userRepository.findAll()
                 .stream()
@@ -186,9 +228,13 @@ public class UserService {
         return true;
     }
 
+    // Serviço de e-mail injetado pelo Spring
     @Autowired
     private JavaMailSender mailSender;
 
+    /**
+     * Envia e-mail com o token de recuperação de senha.
+     */
     public void sendResetEmail(String email, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -197,6 +243,11 @@ public class UserService {
         mailSender.send(message);
     }
 
+    // ==================== MÉTODOS LGPD ====================
+
+    /**
+     * Registra consentimento do usuário para tratamento de dados.
+     */
     public String giveConsent(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -209,6 +260,10 @@ public class UserService {
         return "Consentimento registrado em: " + user.getConsentDate();
     }
 
+    /**
+     * Exporta dados do usuário (direito de portabilidade).
+     * Em produção, exportar mais dados além do básico (histórico, logs, etc).
+     */
     public String exportData(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -222,6 +277,10 @@ public class UserService {
                 "Data do consentimento: " + user.getConsentDate();
     }
 
+    /**
+     * Remove a conta permanentemente (direito ao esquecimento).
+     * ⚠️ Operação irreversível!
+     */
     public String deleteAccount(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -231,6 +290,9 @@ public class UserService {
         return "Conta deletada com sucesso";
     }
 
+    /**
+     * Revoga consentimento para tratamento de dados.
+     */
     public String revokeConsent(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
