@@ -118,10 +118,12 @@ export async function resetPassword(token, newPassword) {
 }
 
 export async function validateSession(token) {
-  const res = await fetch(
-    `${BASE_URL}/validate-session?token=${encodeURIComponent(token)}`,
-    { method: "GET" }
-  );
+  const res = await fetch(`${BASE_URL}/validate-session`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
   if (!res.ok) throw new Error(friendlyError(await res.text(), "session"));
   return res.json();
 }
