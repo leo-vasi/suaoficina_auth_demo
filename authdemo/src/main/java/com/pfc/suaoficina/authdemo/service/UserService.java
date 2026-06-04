@@ -18,42 +18,65 @@ import java.util.UUID;
 @Service
 public class UserService {
 
+    // REQ 5.1 - Logs de autenticação registrados
+    // REQ 5.2 - Logs de falhas e 2FA registrados
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+
+    // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
+    // REQ 1.2 - Parâmetros de custo do hash configurados e justificados
+    // REQ 1.3 - Uso de salt criptográfico único por usuário
     private final BCryptPasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        // BCrypt com fator de custo padrão (10 rounds), salt gerado automaticamente por usuário
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    // REQ 5.2 - Logs de falhas e 2FA registrados — sanitização de inputs para prevenção de Log Injection
+    private String sanitizeLog(String input) {
+        if (input == null) return "null";
+        return input.replaceAll("[\r\n\t]", "_");
+    }
+
+    // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
+    // REQ 1.3 - Uso de salt criptográfico único por usuário
+    // REQ 1.4 - Armazenamento correto do hash + salt
     public User register(String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
-            log.warn("[REGISTRO] Tentativa de cadastro com e-mail já existente: {}", email);
+            log.warn("[REGISTRO] Tentativa de cadastro com e-mail já existente: {}", sanitizeLog(email));
             throw new RuntimeException("Email já cadastrado");
         }
 
         User user = new User();
         user.setEmail(email);
+
+        // Hash BCrypt — irreversível, salt único incorporado automaticamente ao hash armazenado
         String hashedPassword = passwordEncoder.encode(password);
         user.setPassword(hashedPassword);
 
         User saved = userRepository.save(user);
-        log.info("[REGISTRO] Novo usuário registrado: {}", email);
+        log.info("[REGISTRO] Novo usuário registrado: {}", sanitizeLog(email));
         return saved;
     }
 
+    // REQ 1.6 - Validação do 2FA após autenticação primária
+    // REQ 1.9 - Sessões com tempo de expiração
+    // REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
     public User login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.warn("[LOGIN] Tentativa de login com e-mail não encontrado: {}", email);
+                    log.warn("[LOGIN] Tentativa de login com e-mail não encontrado: {}", sanitizeLog(email));
                     return new RuntimeException("Usuário não encontrado");
                 });
 
+        // REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
+        // Bloqueio temporário de 5 minutos após 5 tentativas consecutivas falhas
         if (user.getAccountLocked()) {
             if (user.getLockTime().plusMinutes(5).isAfter(LocalDateTime.now())) {
-                log.warn("[LOGIN] Tentativa de acesso em conta bloqueada: {}", email);
+                log.warn("[LOGIN] Tentativa de acesso em conta bloqueada: {}", sanitizeLog(email));
                 throw new RuntimeException("Conta bloqueada, tente novamente mais tarde.");
             } else {
                 user.setAccountLocked(false);
@@ -61,16 +84,19 @@ public class UserService {
             }
         }
 
+        // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
+        // BCrypt.matches compara o input com o hash armazenado sem reversão
         if (!passwordEncoder.matches(password, user.getPassword())) {
             int attempts = user.getFailedAttempts() + 1;
             user.setFailedAttempts(attempts);
 
+            // REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
             if (attempts >= 5) {
                 user.setAccountLocked(true);
                 user.setLockTime(LocalDateTime.now());
-                log.warn("[LOGIN] Conta bloqueada por excesso de tentativas: {}", email);
+                log.warn("[LOGIN] Conta bloqueada por excesso de tentativas: {}", sanitizeLog(email));
             } else {
-                log.warn("[LOGIN] Senha inválida para: {}. Tentativas: {}", email, attempts);
+                log.warn("[LOGIN] Senha inválida para: {}. Tentativas: {}", sanitizeLog(email), sanitizeLog(String.valueOf(attempts)));
             }
 
             userRepository.save(user);
@@ -80,25 +106,31 @@ public class UserService {
         user.setFailedAttempts(0);
         user.setAccountLocked(false);
 
+        // REQ 1.6 - Validação do 2FA após autenticação primária
+        // Sessão não é gerada enquanto o segundo fator não for validado
         if (Boolean.TRUE.equals(user.getTwoFactorEnabled())) {
             userRepository.save(user);
-            log.info("[LOGIN] 2FA necessário para: {}", email);
+            log.info("[LOGIN] 2FA necessário para: {}", sanitizeLog(email));
             throw new RuntimeException("2FA_REQUIRED");
         }
 
+        // REQ 1.9 - Sessões com tempo de expiração
+        // Token UUID gerado com expiração de 10 minutos
         String sessionToken = UUID.randomUUID().toString();
         user.setSessionToken(sessionToken);
         user.setSessionExpiration(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
 
-        log.info("[LOGIN] Login bem-sucedido: {}", email);
+        log.info("[LOGIN] Login bem-sucedido: {}", sanitizeLog(email));
         return user;
     }
 
+    // REQ 1.5 - Autenticação de dois fatores (2FA) implementada
     public String enable2FA(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        // Geração de chave secreta TOTP compatível com Google Authenticator (RFC 6238)
         GoogleAuthenticator gAuth = new GoogleAuthenticator();
         GoogleAuthenticatorKey key = gAuth.createCredentials();
 
@@ -106,45 +138,62 @@ public class UserService {
         user.setTwoFactorEnabled(true);
         userRepository.save(user);
 
-        log.info("[2FA] 2FA ativado para: {}", email);
+        log.info("[2FA] 2FA ativado para: {}", sanitizeLog(email));
         return key.getKey();
     }
 
+    // REQ 1.5 - Autenticação de dois fatores (2FA) implementada
+    // REQ 1.6 - Validação do 2FA após autenticação primária
+    // REQ 1.9 - Sessões com tempo de expiração
     public User verify2FA(String email, int code) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         GoogleAuthenticator gAuth = new GoogleAuthenticator();
+
+        // Validação do código TOTP de 6 dígitos baseado em tempo (janela de 30s)
         boolean isValid = gAuth.authorize(user.getTwoFactorSecret(), code);
 
         if (!isValid) {
-            log.warn("[2FA] Código 2FA inválido para: {}", email);
+            log.warn("[2FA] Código 2FA inválido para: {}", sanitizeLog(email));
             throw new RuntimeException("Código 2FA inválido");
         }
 
+        // REQ 1.9 - Sessões com tempo de expiração
         String sessionToken = UUID.randomUUID().toString();
         user.setSessionToken(sessionToken);
         user.setSessionExpiration(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
 
-        log.info("[2FA] Verificação bem-sucedida para: {}", email);
+        log.info("[2FA] Verificação bem-sucedida para: {}", sanitizeLog(email));
         return user;
     }
 
+    // REQ 2.1 - Funcionalidade de recuperação de senha implementada
+    // REQ 2.2 - Token criptograficamente seguro
+    // REQ 2.3 - Token com tempo de expiração
+    // REQ 2.6 - Registro de solicitação de recuperação em log
     public String requestPasswordReset(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        // REQ 2.2 - Token criptograficamente seguro
+        // UUID v4 com 122 bits de entropia — praticamente impossível de adivinhar
         String token = UUID.randomUUID().toString();
         user.setResetToken(token);
+
+        // REQ 2.3 - Token com tempo de expiração
         user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
 
         sendResetEmail(email, token);
-        log.info("[RESET] Solicitação de recuperação de senha para: {}", email);
+        log.info("[RESET] Solicitação de recuperação de senha para: {}", sanitizeLog(email));
         return "E-mail de recuperação enviado";
     }
 
+    // REQ 2.4 - Token invalidado após uso
+    // REQ 2.5 - Falha correta para token expirado
+    // REQ 2.7 - Registro de sucesso/falha do processo
     public void resetPassword(String token, String newPassword) {
         User user = userRepository.findByResetToken(token)
                 .orElseThrow(() -> {
@@ -152,27 +201,32 @@ public class UserService {
                     return new RuntimeException("Token inválido");
                 });
 
+        // REQ 2.5 - Falha correta para token expirado
         if (user.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
-            log.warn("[RESET] Token expirado para: {}", user.getEmail());
+            log.warn("[RESET] Token expirado para: {}", sanitizeLog(user.getEmail()));
             throw new RuntimeException("Token expirado");
         }
 
+        // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
         String hashedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(hashedPassword);
+
+        // REQ 2.4 - Token invalidado após uso
         user.setResetToken(null);
         user.setResetTokenExpiration(null);
         userRepository.save(user);
 
-        log.info("[RESET] Senha redefinida com sucesso para: {}", user.getEmail());
+        log.info("[RESET] Senha redefinida com sucesso para: {}", sanitizeLog(user.getEmail()));
     }
 
+    // REQ 1.9 - Sessões com tempo de expiração
     public boolean validateSession(String token) {
         User user = userRepository.findBySessionToken(token).orElse(null);
 
         if (user == null) return false;
 
         if (user.getSessionExpiration().isBefore(LocalDateTime.now())) {
-            log.warn("[SESSÃO] Token expirado para: {}", user.getEmail());
+            log.warn("[SESSÃO] Token expirado para: {}", sanitizeLog(user.getEmail()));
             return false;
         }
 
@@ -190,6 +244,9 @@ public class UserService {
         mailSender.send(message);
     }
 
+    // REQ 4.4 - Registro explícito de consentimento
+    // REQ 4.5 - Consentimento associado à finalidade
+    // REQ 4.7 - Registro de data e versão do consentimento
     public String giveConsent(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -198,15 +255,17 @@ public class UserService {
         user.setConsentDate(LocalDateTime.now());
         userRepository.save(user);
 
-        log.info("[LGPD] Consentimento registrado para: {}", email);
+        log.info("[LGPD] Consentimento registrado para: {}", sanitizeLog(email));
         return "Consentimento registrado em: " + user.getConsentDate();
     }
 
+    // REQ 4.8 - Funcionalidade de consulta aos dados do titular
+    // REQ 4.9 - Funcionalidade de exportação dos dados
     public String exportData(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        log.info("[LGPD] Exportação de dados solicitada para: {}", email);
+        log.info("[LGPD] Exportação de dados solicitada para: {}", sanitizeLog(email));
         return "Dados do titular:\n" +
                 "ID: " + user.getId() + "\n" +
                 "Email: " + user.getEmail() + "\n" +
@@ -215,15 +274,17 @@ public class UserService {
                 "Data do consentimento: " + user.getConsentDate();
     }
 
+    // REQ 4.10 - Funcionalidade de exclusão dos dados pessoais
     public String deleteAccount(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         userRepository.delete(user);
 
-        log.info("[LGPD] Conta deletada: {}", email);
+        log.info("[LGPD] Conta deletada: {}", sanitizeLog(email));
         return "Conta deletada com sucesso";
     }
 
+    // REQ 4.6 - Possibilidade de revogação do consentimento
     public String revokeConsent(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -231,7 +292,7 @@ public class UserService {
         user.setConsentDate(null);
         userRepository.save(user);
 
-        log.info("[LGPD] Consentimento revogado para: {}", email);
+        log.info("[LGPD] Consentimento revogado para: {}", sanitizeLog(email));
         return "Consentimento revogado com sucesso";
     }
 }

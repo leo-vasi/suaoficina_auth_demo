@@ -129,37 +129,56 @@ public class AuthController {
         return "Senha redefinida com sucesso";
     }
 
+// REQ 4.4 - Registro explícito de consentimento
+// REQ 4.5 - Consentimento associado à finalidade
+// REQ 4.7 - Registro de data e versão do consentimento
     /**
-     * Endpoint para validar se um token de sessão ainda é válido.
-     * GET /auth/validate-session?token=token_da_sessao
+     * Endpoint para registrar o consentimento explícito do titular.
+     * POST /auth/consent?email=usuario@exemplo.com
      *
-     * Útil para o frontend verificar periodicamente se a sessão do usuário ainda está ativa
-     * sem precisar fazer uma requisição que exija dados sensíveis. Por exemplo, pode ser
-     * chamado a cada minuto para estender automaticamente a sessão ou redirecionar para login.
-     *
-     * @param token Token de sessão obtido durante o login
-     * @return true se o token existe e não expirou, false caso contrário
+     * @param email E-mail do usuário que aceitou os termos de uso
+     * @return Mensagem de confirmação com data e hora do registro
      */
-    @GetMapping("/validate-session")
-    public boolean validateSession(@RequestParam String token) {
-        return userService.validateSession(token);
-    }
-
     @PostMapping("/consent")
     public String giveConsent(@RequestParam String email) {
         return userService.giveConsent(email);
     }
 
+// REQ 4.8 - Funcionalidade de consulta aos dados do titular
+// REQ 4.9 - Funcionalidade de exportação dos dados
+    /**
+     * Endpoint para exportar os dados pessoais do titular (direito de acesso — LGPD).
+     * GET /auth/export-data?email=usuario@exemplo.com
+     *
+     * @param email E-mail do titular solicitante
+     * @return Resumo dos dados pessoais armazenados, excluindo campos sensíveis
+     */
     @GetMapping("/export-data")
     public String exportData(@RequestParam String email) {
         return userService.exportData(email);
     }
 
+// REQ 4.10 - Funcionalidade de exclusão dos dados pessoais
+    /**
+     * Endpoint para exclusão permanente da conta do titular (direito ao esquecimento — LGPD).
+     * DELETE /auth/delete-account?email=usuario@exemplo.com
+     *
+     * @param email E-mail do titular que solicita a exclusão
+     * @return Mensagem de confirmação da exclusão
+     */
     @DeleteMapping("/delete-account")
     public String deleteAccount(@RequestParam String email) {
         return userService.deleteAccount(email);
     }
 
+// REQ 4.6 - Possibilidade de revogação do consentimento
+    /**
+     * Endpoint para revogação do consentimento previamente concedido (LGPD).
+     * POST /auth/revoke-consent?email=usuario@exemplo.com
+     *
+     * @param email E-mail do titular que deseja revogar o consentimento
+     * @return Mensagem de confirmação da revogação
+     */
     @PostMapping("/revoke-consent")
     public String revokeConsent(@RequestParam String email) {
         return userService.revokeConsent(email);

@@ -85,7 +85,7 @@ Expõe os endpoints REST sob o prefixo `/auth`. Atua apenas como camada de apres
 Núcleo da aplicação. Contém toda a lógica de segurança: validação de credenciais, controle de bloqueio por força bruta, geração de tokens de sessão e reset, integração com 2FA, envio de e-mail e registro de auditoria via SLF4J.
 
 **`AesEncryptor.java`**
-Conversor JPA (`AttributeConverter`) que intercepta leitura e escrita de campos sensíveis no banco de dados, aplicando criptografia AES-128/ECB com codificação Base64 de forma transparente.
+Conversor JPA (`AttributeConverter`) que intercepta leitura e escrita de campos sensíveis no banco de dados, aplicando criptografia AES-128/CBC com vetor de inicialização (IV) aleatório e codificação Base64 de forma transparente.
 
 **`User.java`**
 Entidade JPA mapeada para a tabela `users`. Campos sensíveis protegidos com `@JsonIgnore` (senha, segredo 2FA, tokens) e criptografia em repouso nos campos `twoFactorSecret` e `resetToken`.
@@ -98,7 +98,7 @@ Entidade JPA mapeada para a tabela `users`. Campos sensíveis protegidos com `@J
 |---|---|
 | Hash de senhas | BCrypt com salt automático |
 | Criptografia em trânsito | TLS 1.2+ via certificado PKCS12 autoassinado |
-| Criptografia em repouso | AES-128/ECB com Base64 nos campos sensíveis |
+| Criptografia em repouso | AES-128/CBC com IV aleatório e Base64 nos campos sensíveis |
 | Protecao contra forca bruta | Bloqueio automático após 5 tentativas (5 min) |
 | 2FA | TOTP via Google Authenticator (RFC 6238) |
 | Sessão | Token UUID com expiração de 10 minutos |

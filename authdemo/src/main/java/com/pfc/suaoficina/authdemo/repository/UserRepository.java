@@ -20,16 +20,11 @@ import java.util.Optional;
  */
 
 public interface UserRepository extends JpaRepository<User, Long> {
+
+
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByResetToken(String resetToken);
+    Optional<User> findBySessionToken(String sessionToken);
 }
-    /**
-     * Busca um usuário no banco de dados pelo seu endereço de e-mail.
-     * O Spring Data JPA interpreta o nome do método "findByEmail" e gera automaticamente a consulta SQL.
-     *
-     * O retorno é um Optional, que pode conter o usuário se encontrado ou estar vazio se não existir.
-     * O uso de Optional evita o tratamento de valores nulos (NullPointerException) e força quem chama
-     * este método a lidar explicitamente com a possibilidade de o usuário não ser encontrado.
-     *
-     * @param email O endereço de e-mail do usuário a ser buscado (único no sistema)
-     * @return Optional contendo o usuário se encontrado, ou Optional vazio caso contrário
-     */
+
