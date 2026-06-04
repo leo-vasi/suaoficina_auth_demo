@@ -34,8 +34,11 @@ Este projeto está dividido em dois repositórios independentes:
 - Controle de sessão com token e expiração automática
 - Recuperação de senha via e-mail com token temporário
 - Proteção contra força bruta com bloqueio automático de conta
+- Rate limiting por IP utilizando Bucket4j
 - Comunicação protegida com TLS/HTTPS (certificado autoassinado)
-- Criptografia de dados sensíveis em repouso (AES-128)
+- Criptografia de dados sensíveis em repouso (AES-256/GCM)
+- Envio assíncrono de e-mails com Spring Async
+- Sanitização de logs para mitigação de Log Injection
 - Conformidade com a LGPD: minimização de dados, consentimento e direitos do titular
 - Auditoria e logs de eventos críticos de segurança
 
@@ -44,22 +47,35 @@ Este projeto está dividido em dois repositórios independentes:
 ## Estrutura dos repositórios
 
 **authdemo (backend)**
-```
+
+```text
 authdemo/
 ├── src/main/java/com/pfc/suaoficina/authdemo/
+│   ├── config/
+│   │   ├── AsyncConfig.java          # Habilita processamento assíncrono
+│   │   ├── RateLimitFilter.java      # Rate limiting por IP
+│   │   └── SecurityConfig.java       # Configurações de segurança e CORS
 │   ├── controller/
-│   │   └── AuthController.java       # Endpoints REST de autenticação e LGPD
+│   │   ├── AuthController.java       # Endpoints REST de autenticação e LGPD
+│   │   └── TestController.java       # Endpoint de teste da API
+│   ├── exception/
+│   │   └── GlobalExceptionHandler.java # Tratamento centralizado de exceções
 │   ├── model/
-│   │   └── User.java                 # Entidade de usuário com campos auditados
+│   │   └── User.java                 # Entidade de usuário
 │   ├── repository/
-│   │   └── UserRepository.java       # Acesso ao banco de dados (Spring Data JPA)
+│   │   └── UserRepository.java       # Acesso ao banco de dados
 │   ├── service/
-│   │   └── UserService.java          # Lógica de negócio, segurança e auditoria
-│   └── util/
-│       └── AesEncryptor.java         # Conversor JPA para criptografia AES em repouso
+│   │   └── UserService.java          # Regras de negócio e segurança
+│   ├── util/
+│   │   └── AesEncryptor.java         # Criptografia AES/GCM em repouso
+│   └── AuthdemoApplication.java
 ├── src/main/resources/
-│   ├── application.properties        # Configurações da aplicação
-│   └── keystore.p12                  # Certificado TLS autoassinado
+│   ├── application.properties
+│   ├── logback-spring.xml
+│   └── keystore.p12
+├── logs/                             # Criado apenas em ambiente local
+├── .env                              # Variáveis de ambiente (não versionado)
+└── pom.xml    # Certificado TLS autoassinado
 └── logs/
     └── auditoria.log                 # Registro de eventos críticos de segurança
 ```
@@ -78,17 +94,29 @@ authdemo-frontend/
 
 ## Componentes principais
 
-**`AuthController.java`**
-Expõe os endpoints REST sob o prefixo `/auth`. Atua apenas como camada de apresentação, recebendo requisições, delegando ao serviço e retornando respostas. Não contém lógica de negócio.
+**`AuthController.java`**  
+Expõe os endpoints REST sob o prefixo `/auth`. Atua apenas como camada de apresentação, recebendo requisições, delegando ao serviço e retornando respostas.
 
-**`UserService.java`**
-Núcleo da aplicação. Contém toda a lógica de segurança: validação de credenciais, controle de bloqueio por força bruta, geração de tokens de sessão e reset, integração com 2FA, envio de e-mail e registro de auditoria via SLF4J.
+**`UserService.java`**  
+Núcleo da aplicação. Contém toda a lógica de segurança: autenticação, 2FA, bloqueio por tentativas inválidas, geração de tokens de sessão e recuperação de senha, envio assíncrono de e-mails e funcionalidades LGPD.
 
-**`AesEncryptor.java`**
-Conversor JPA (`AttributeConverter`) que intercepta leitura e escrita de campos sensíveis no banco de dados, aplicando criptografia AES-128/CBC com vetor de inicialização (IV) aleatório e codificação Base64 de forma transparente.
+**`SecurityConfig.java`**  
+Define as políticas de segurança da aplicação, incluindo rotas públicas, CORS restrito às origens autorizadas e configuração da cadeia de filtros do Spring Security.
 
-**`User.java`**
-Entidade JPA mapeada para a tabela `users`. Campos sensíveis protegidos com `@JsonIgnore` (senha, segredo 2FA, tokens) e criptografia em repouso nos campos `twoFactorSecret` e `resetToken`.
+**`RateLimitFilter.java`**  
+Filtro responsável por limitar requisições por endereço IP utilizando Bucket4j, mitigando ataques automatizados e abuso da API.
+
+**`AsyncConfig.java`**  
+Habilita processamento assíncrono através da anotação `@EnableAsync`, permitindo o envio não bloqueante de e-mails.
+
+**`GlobalExceptionHandler.java`**  
+Centraliza o tratamento de exceções dos controllers REST, padronizando respostas de erro e o fluxo de autenticação com 2FA.
+
+**`AesEncryptor.java`**  
+Conversor JPA (`AttributeConverter`) responsável pela criptografia transparente de atributos sensíveis utilizando AES-256/GCM com IV aleatório por operação.
+
+**`User.java`**  
+Entidade JPA mapeada para a tabela `users`. Utiliza `@JsonIgnore` para evitar exposição de informações sensíveis e criptografia em repouso para o segredo do 2FA.
 
 ---
 
@@ -98,15 +126,17 @@ Entidade JPA mapeada para a tabela `users`. Campos sensíveis protegidos com `@J
 |---|---|
 | Hash de senhas | BCrypt com salt automático |
 | Criptografia em trânsito | TLS 1.2+ via certificado PKCS12 autoassinado |
-| Criptografia em repouso | AES-128/CBC com IV aleatório e Base64 nos campos sensíveis |
-| Protecao contra forca bruta | Bloqueio automático após 5 tentativas (5 min) |
+| Criptografia em repouso | AES-256/GCM com IV aleatório e autenticação integrada |
+| Proteção contra força bruta | Bloqueio automático após 5 tentativas (5 min) |
+| Rate Limiting | 20 requisições por minuto por IP (Bucket4j) |
 | 2FA | TOTP via Google Authenticator (RFC 6238) |
 | Sessão | Token UUID com expiração de 10 minutos |
 | Reset de senha | Token UUID de uso único com expiração de 10 minutos |
-| Minimização de dados | `@JsonIgnore` em todos os campos não necessários ao frontend |
+| Minimização de dados | `@JsonIgnore` em campos sensíveis |
+| Sanitização de logs | Mitigação de Log Injection por remoção de CR/LF/TAB |
 | Consentimento LGPD | Registro de aceite com timestamp no banco |
 | Direitos do titular | Endpoints de exportação, revogação e exclusão de conta |
-| Auditoria | Log estruturado em arquivo separado (`logs/auditoria.log`) |
+| Auditoria | Persistência em arquivo rotativo, console e banco de dados |
 
 ---
 
@@ -128,17 +158,17 @@ Entidade JPA mapeada para a tabela `users`. Campos sensíveis protegidos com `@J
 
 ---
 
-## Tecnologias utilizadas
-
 | Camada | Tecnologia |
 |---|---|
 | Linguagem | Java 25 (LTS) |
 | Framework | Spring Boot 3.x |
 | Banco de dados | PostgreSQL |
 | Segurança | Spring Security + BCrypt |
-| Criptografia em repouso | AES-128 (JPA AttributeConverter) |
-| Comunicação segura | TLS/HTTPS (keytool + PKCS12) |
+| Criptografia em repouso | AES-256/GCM (JPA AttributeConverter) |
+| Comunicação segura | TLS/HTTPS (PKCS12) |
 | 2FA | Google Authenticator (TOTP) |
+| Rate Limiting | Bucket4j |
+| Processamento assíncrono | Spring Async (`@Async`) |
 | E-mail | Spring Boot Starter Mail |
 | Logs | SLF4J + Logback |
 | Frontend | HTML + CSS + JavaScript (fetch async/await) |
@@ -166,69 +196,88 @@ Crie um banco de dados no PostgreSQL:
 CREATE DATABASE db_suaoficina;
 ```
 
-Configure o acesso no `application.properties`:
+A aplicação utiliza variáveis de ambiente para armazenar informações sensíveis. Configure as credenciais de acesso ao banco conforme o exemplo abaixo:
 
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/db_suaoficina
-spring.datasource.username=SEU_USUARIO
-spring.datasource.password=SUA_SENHA
-spring.jpa.hibernate.ddl-auto=update
+```env
+DB_URL=jdbc:postgresql://localhost:5432/db_suaoficina
+DB_USERNAME=SEU_USUARIO
+DB_PASSWORD=SUA_SENHA
 ```
 
+As propriedades do Spring Boot são carregadas automaticamente a partir dessas variáveis:
+
+```properties
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+```
 ---
 
 ### 2. Configuração de e-mail (recuperação de senha)
 
-A aplicação utiliza uma conta Gmail para envio do token de recuperação de senha. É necessário gerar uma **senha de aplicativo** na conta Google (não a senha normal).
+A aplicação utiliza SMTP do Gmail para envio dos tokens de recuperação de senha.
 
-Configure no `application.properties`:
+Para isso, é necessário habilitar a verificação em duas etapas na conta Google e gerar uma **senha de aplicativo**.
+
+Configure as variáveis de ambiente:
+
+```env
+MAIL_USERNAME=SEU_EMAIL@gmail.com
+MAIL_PASSWORD=SENHA_DE_APLICATIVO
+```
+
+As propriedades são carregadas automaticamente pelo Spring Boot:
 
 ```properties
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=SEU_EMAIL@gmail.com
-spring.mail.password=SENHA_DE_APLICATIVO
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 ```
 
-> Nunca versione o `application.properties` com credenciais reais. Utilize variáveis de ambiente em produção.
-
+> Credenciais de e-mail não devem ser armazenadas diretamente no código-fonte ou versionadas no repositório.
 ---
-
-### 3. TLS/HTTPS (certificado autoassinado)
-
-Gere o certificado com o comando abaixo na raiz do projeto:
-
-```powershell
-keytool -genkeypair -alias authdemo -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore src/main/resources/keystore.p12 -validity 365 -storepass senha123 -dname "CN=localhost, OU=TCC, O=SuaOficina, L=SP, ST=SP, C=BR"
-```
 
 Configure no `application.properties`:
 
 ```properties
 server.port=8443
 server.ssl.key-store=classpath:keystore.p12
-server.ssl.key-store-password=senha123
+server.ssl.key-store-password=${SSL_KEYSTORE_PASSWORD}
 server.ssl.key-store-type=PKCS12
 server.ssl.key-alias=authdemo
 ```
 
-> Por ser autoassinado, o browser exibirá um aviso de segurança. Acesse `https://localhost:8443/auth/validate-session?token=teste` diretamente e aceite o certificado antes de usar o frontend.
+Defina também a variável de ambiente:
+
+```env
+SSL_KEYSTORE_PASSWORD=SUA_SENHA_DO_CERTIFICADO
+
+```
+
+> Por ser autoassinado, o browser exibirá um aviso de segurança. Acesse `GET /auth/validate-session Authorization: Bearer <token>` diretamente e aceite o certificado antes de usar o frontend.
 
 ---
 
 ### 4. Criptografia em repouso
 
-Defina a chave AES no `application.properties`:
+A chave utilizada para criptografia dos dados sensíveis é carregada por variável de ambiente:
 
-```properties
-encryption.secret=MinhaChaveSecreta
+```env
+ENCRYPTION_SECRET=SUA_CHAVE_SECRETA
 ```
 
-> A chave é ajustada automaticamente para 16 bytes (AES-128). Os campos `twoFactorSecret` e `resetToken` são criptografados de forma transparente via `AesEncryptor.java`.
+A configuração é realizada através da propriedade:
 
----
+```properties
+encryption.secret=${ENCRYPTION_SECRET}
+```
+
+O sistema utiliza AES-256/GCM com IV aleatório por operação, garantindo confidencialidade e integridade dos dados armazenados.
+
+Atualmente o campo `twoFactorSecret` é criptografado automaticamente através do conversor JPA `AesEncryptor.java`.
 
 ### 5. Executando a aplicação
 
@@ -242,31 +291,28 @@ A aplicação estará disponível em `https://localhost:8443`. O frontend deve s
 
 ## Auditoria e logs
 
-Eventos críticos são registrados automaticamente no arquivo `logs/auditoria.log` na raiz do projeto.
+Eventos críticos de segurança são registrados utilizando SLF4J e Logback.
 
-Configure no `application.properties`:
+Os registros de auditoria são persistidos simultaneamente em:
 
-```properties
-logging.file.name=logs/auditoria.log
-logging.level.com.pfc.suaoficina.authdemo.service.UserService=INFO
-```
+- Console da aplicação
+- Arquivos rotativos em `logs/auditoria.log`
+- Banco de dados PostgreSQL via `DBAppender`
+
+A rotação dos arquivos de auditoria é realizada diariamente, mantendo histórico de até 30 dias.
 
 Exemplos de eventos registrados:
 
-```
-[REGISTRO]  Novo usuário registrado: usuario@email.com
-[LOGIN]     Login bem-sucedido: usuario@email.com
-[LOGIN]     Senha inválida para: usuario@email.com. Tentativas: 3
-[LOGIN]     Conta bloqueada por excesso de tentativas: usuario@email.com
-[LOGIN]     Tentativa de acesso em conta bloqueada: usuario@email.com
-[2FA]       2FA ativado para: usuario@email.com
-[2FA]       Verificação bem-sucedida para: usuario@email.com
-[RESET]     Solicitação de recuperação de senha para: usuario@email.com
-[RESET]     Senha redefinida com sucesso para: usuario@email.com
-[LGPD]      Consentimento registrado para: usuario@email.com
-[LGPD]      Exportação de dados solicitada para: usuario@email.com
-[LGPD]      Consentimento revogado para: usuario@email.com
-[LGPD]      Conta deletada: usuario@email.com
+```text
+[REGISTRO] Novo usuário registrado
+[LOGIN] Login bem-sucedido
+[LOGIN] Senha inválida
+[LOGIN] Conta bloqueada por excesso de tentativas
+[2FA] Verificação bem-sucedida
+[RESET] Solicitação de recuperação de senha
+[LGPD] Consentimento registrado
+[LGPD] Exportação de dados solicitada
+[LGPD] Conta deletada
 ```
 
 ---
@@ -286,6 +332,8 @@ Exemplos de eventos registrados:
 
 ## Observações
 
-- Este projeto é uma **demonstração acadêmica** e não deve ser utilizado em produção sem as devidas adaptações (certificado TLS valido, variáveis de ambiente, HTTPS forcado, etc.).
-- O certificado autoassinado é adequado apenas para ambiente local e demonstrações.
-- Os tokens de sessão e reset são armazenados no banco de dados. Em produção, recomenda-se algo mais robusto.
+- Este projeto é uma demonstração acadêmica e não deve ser utilizado em produção sem as devidas adaptações.
+- Credenciais, segredos criptográficos e senhas de certificado são carregados por variáveis de ambiente.
+- O certificado TLS autoassinado é adequado apenas para ambiente local e demonstrações.
+- O sistema implementa autenticação em dois fatores, rate limiting por IP, criptografia AES-256/GCM e auditoria persistida.
+- Os tokens de sessão e recuperação são armazenados no banco de dados para fins acadêmicos e demonstrativos.
