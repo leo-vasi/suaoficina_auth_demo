@@ -1,184 +1,113 @@
 package com.pfc.suaoficina.authdemo.controller;
 
-// Importa a entidade User para ser usada como retorno nos métodos de registro, login e verificação 2FA
 import com.pfc.suaoficina.authdemo.model.User;
-// Importa o serviço que contém a lógica de negócio para autenticação e gerenciamento de usuários
 import com.pfc.suaoficina.authdemo.service.UserService;
-// Importa anotações do Spring para definir este componente como um controller REST
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
- * Controlador REST responsável por expor os endpoints de autenticação da aplicação.
+ * Endpoints REST de autenticação, segurança e conformidade LGPD.
+ * Atua exclusivamente como camada de entrada HTTP — toda lógica de negócio
+ * está delegada ao UserService.
  *
- * A anotação @RestController indica que esta classe é um controller onde cada método
- * retorna diretamente o objeto que será convertido para JSON/XML (diferente de @Controller,
- * que geralmente retorna nomes de views).
- *
- * A anotação @RequestMapping("/auth") define que todos os endpoints deste controller
- * terão o prefixo "/auth". Por exemplo, o método register será acessível em "/auth/register".
- *
- * Este controller atua como uma camada de apresentação (interface HTTP), apenas
- * recebendo requisições, extraindo parâmetros, delegando a execução para o UserService,
- * e retornando os resultados. Nenhuma lógica de negócio deve existir aqui.
+ * REQ 1.7 - Fluxo de autenticação documentado
+ * REQ 1.12 - Justificativas técnicas documentadas
  */
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    // Dependência do serviço de usuário, responsável pela lógica de negócio
     private final UserService userService;
 
-    /**
-     * Construtor para injeção de dependência via construtor.
-     * O Spring automaticamente fornece uma instância de UserService ao criar este controller.
-     * Este é o padrão recomendado para injeção de dependência, pois facilita testes
-     * e garante que a dependência seja obrigatória (final) e imutável.
-     *
-     * @param userService Serviço de usuário que contém os métodos de registro, login, 2FA, etc.
-     */
     public AuthController(UserService userService) {
         this.userService = userService;
     }
 
-    /**
-     * Endpoint para registro de novo usuário.
-     * POST /auth/register?email=usuario@exemplo.com&password=senha123
-     *
-     * @param email Endereço de e-mail do usuário (será usado como nome de usuário)
-     * @param password Senha em texto puro (o serviço deve criptografar antes de salvar)
-     * @return O objeto User recém-criado e salvo no banco de dados (sem a senha, devido ao @JsonIgnore)
-     */
+    // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
+    // REQ 1.3 - Uso de salt criptográfico único por usuário
+    // REQ 1.4 - Armazenamento correto do hash + salt
     @PostMapping("/register")
     public User register(@RequestParam String email, @RequestParam String password) {
         return userService.register(email, password);
     }
 
-    /**
-     * Endpoint para login do usuário.
-     * POST /auth/login?email=usuario@exemplo.com&password=senha123
-     *
-     * Comportamento esperado:
-     * - Se o usuário não tem 2FA ativado, retorna os dados do usuário logado.
-     * - Se o usuário tem 2FA ativado, o serviço lança uma exceção com mensagem "2FA_REQUIRED",
-     *   que será capturada pelo GlobalExceptionHandler e retornará status 401 com o código especial.
-     *   O frontend deve então chamar o endpoint /verify-2fa para completar o login.
-     *
-     * @param email E-mail do usuário
-     * @param password Senha do usuário
-     * @return O objeto User logado (dados básicos, sem campos sensíveis)
-     */
+    // Retorna 2FA_REQUIRED se o segundo fator estiver ativo — frontend redireciona para /verify-2fa
+    // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
+    // REQ 1.6 - Validação do 2FA após autenticação primária
+    // REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
     @PostMapping("/login")
     public User login(@RequestParam String email, @RequestParam String password) {
         return userService.login(email, password);
     }
 
-    /**
-     * Endpoint para ativar a autenticação de dois fatores (2FA) para um usuário.
-     * POST /auth/enable-2fa?email=usuario@exemplo.com
-     *
-     * @param email E-mail do usuário que deseja ativar o 2FA
-     * @return Uma string contendo a URI de configuração (ex: otpauth://...)
-     *         que deve ser convertida em QR Code para o usuário escanear no aplicativo
-     *         autenticador (Google Authenticator, Microsoft Authenticator, etc.)
-     */
+    // Retorna a chave secreta TOTP para uma possível geração do QR Code no frontend
+    // REQ 1.5 - Autenticação de dois fatores (2FA) implementada
     @PostMapping("/enable-2fa")
     public String enable2FA(@RequestParam String email) {
         return userService.enable2FA(email);
     }
 
-    /**
-     * Endpoint para verificar o código de autenticação de dois fatores.
-     * POST /auth/verify-2fa?email=usuario@exemplo.com&code=123456
-     *
-     * Este endpoint é chamado após o login bem-sucedido, quando o usuário tem 2FA ativado.
-     * O código de 6 dígitos gerado pelo aplicativo autenticador deve ser validado.
-     *
-     * @param email E-mail do usuário
-     * @param code Código numérico de 6 dígitos gerado pelo aplicativo autenticador
-     * @return O objeto User logado (após validação bem-sucedida do 2FA)
-     */
+    // REQ 1.5 - Autenticação de dois fatores (2FA) implementada
+    // REQ 1.6 - Validação do 2FA após autenticação primária
+    // REQ 1.9 - Sessões com tempo de expiração
     @PostMapping("/verify-2fa")
     public User verify2FA(@RequestParam String email, @RequestParam int code) {
         return userService.verify2FA(email, code);
     }
 
-    /**
-     * Endpoint para solicitar redefinição de senha (esqueci minha senha).
-     * POST /auth/forgot-password?email=usuario@exemplo.com
-     *
-     * @param email E-mail do usuário que perdeu a senha
-     * @return Mensagem de confirmação informando que um e-mail com o token foi enviado
-     *         (ou que o e-mail foi encontrado, sem revelar informações sensíveis)
-     */
+    // REQ 2.1 - Funcionalidade de recuperação de senha implementada
+    // REQ 2.2 - Token criptograficamente seguro
+    // REQ 2.3 - Token com tempo de expiração
+    // REQ 2.6 - Registro de solicitação de recuperação em log
     @PostMapping("/forgot-password")
     public String forgotPassword(@RequestParam String email) {
         return userService.requestPasswordReset(email);
     }
 
-    /**
-     * Endpoint para redefinir a senha usando o token recebido por e-mail.
-     * POST /auth/reset-password?token=token_recebido&newPassword=nova_senha123
-     *
-     * @param token Token único e temporário enviado ao e-mail do usuário
-     * @param newPassword Nova senha que substituirá a antiga (deve ser armazenada criptografada)
-     * @return Mensagem de confirmação de sucesso
-     */
+    // REQ 2.4 - Token invalidado após uso
+    // REQ 2.5 - Falha correta para token expirado
+    // REQ 2.7 - Registro de sucesso/falha do processo
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String token, @RequestParam String newPassword) {
         userService.resetPassword(token, newPassword);
         return "Senha redefinida com sucesso";
     }
 
-// REQ 4.4 - Registro explícito de consentimento
-// REQ 4.5 - Consentimento associado à finalidade
-// REQ 4.7 - Registro de data e versão do consentimento
-    /**
-     * Endpoint para registrar o consentimento explícito do titular.
-     * POST /auth/consent?email=usuario@exemplo.com
-     *
-     * @param email E-mail do usuário que aceitou os termos de uso
-     * @return Mensagem de confirmação com data e hora do registro
-     */
+    // Token lido do header Authorization: Bearer <token>
+    // REQ 1.9 - Sessões com tempo de expiração
+    // REQ 1.10 - Invalidação de sessão no logout
+    @GetMapping("/validate-session")
+    public ResponseEntity<?> validateSession(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "").trim();
+        boolean valid = userService.validateSession(token);
+        if (!valid) return ResponseEntity.status(401).body("Sessão inválida ou expirada.");
+        return ResponseEntity.ok(Map.of("valid", true));
+    }
+
+    // REQ 4.4 - Registro explícito de consentimento
+    // REQ 4.5 - Consentimento associado à finalidade
+    // REQ 4.7 - Registro de data e versão do consentimento
     @PostMapping("/consent")
     public String giveConsent(@RequestParam String email) {
         return userService.giveConsent(email);
     }
 
-// REQ 4.8 - Funcionalidade de consulta aos dados do titular
-// REQ 4.9 - Funcionalidade de exportação dos dados
-    /**
-     * Endpoint para exportar os dados pessoais do titular (direito de acesso — LGPD).
-     * GET /auth/export-data?email=usuario@exemplo.com
-     *
-     * @param email E-mail do titular solicitante
-     * @return Resumo dos dados pessoais armazenados, excluindo campos sensíveis
-     */
+    // REQ 4.8 - Funcionalidade de consulta aos dados do titular
+    // REQ 4.9 - Funcionalidade de exportação dos dados
     @GetMapping("/export-data")
     public String exportData(@RequestParam String email) {
         return userService.exportData(email);
     }
 
-// REQ 4.10 - Funcionalidade de exclusão dos dados pessoais
-    /**
-     * Endpoint para exclusão permanente da conta do titular (direito ao esquecimento — LGPD).
-     * DELETE /auth/delete-account?email=usuario@exemplo.com
-     *
-     * @param email E-mail do titular que solicita a exclusão
-     * @return Mensagem de confirmação da exclusão
-     */
+    // REQ 4.10 - Funcionalidade de exclusão dos dados pessoais
     @DeleteMapping("/delete-account")
     public String deleteAccount(@RequestParam String email) {
         return userService.deleteAccount(email);
     }
 
-// REQ 4.6 - Possibilidade de revogação do consentimento
-    /**
-     * Endpoint para revogação do consentimento previamente concedido (LGPD).
-     * POST /auth/revoke-consent?email=usuario@exemplo.com
-     *
-     * @param email E-mail do titular que deseja revogar o consentimento
-     * @return Mensagem de confirmação da revogação
-     */
+    // REQ 4.6 - Possibilidade de revogação do consentimento
     @PostMapping("/revoke-consent")
     public String revokeConsent(@RequestParam String email) {
         return userService.revokeConsent(email);

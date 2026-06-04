@@ -7,6 +7,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -15,11 +16,16 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+// REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
+// REQ 1.2 - Parâmetros de custo do hash configurados e justificados
+// REQ 1.5 - Autenticação de dois fatores (2FA) implementada
+// REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
+// REQ 5.1 - Logs de autenticação registrados
+// REQ 5.2 - Logs de falhas e 2FA registrados
+// Camada de negócio central — concentra todas as políticas de segurança da aplicação.
 @Service
 public class UserService {
 
-    // REQ 5.1 - Logs de autenticação registrados
-    // REQ 5.2 - Logs de falhas e 2FA registrados
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
@@ -27,15 +33,19 @@ public class UserService {
     // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
     // REQ 1.2 - Parâmetros de custo do hash configurados e justificados
     // REQ 1.3 - Uso de salt criptográfico único por usuário
+    // BCrypt com fator de custo 10 — salt único gerado automaticamente por usuário.
     private final BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        // BCrypt com fator de custo padrão (10 rounds), salt gerado automaticamente por usuário
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    // REQ 5.2 - Logs de falhas e 2FA registrados — sanitização de inputs para prevenção de Log Injection
+    // REQ 5.2 - Logs de falhas e 2FA registrados
+    // Sanitização de inputs nos logs previne Log Injection via CRLF.
     private String sanitizeLog(String input) {
         if (input == null) return "null";
         return input.replaceAll("[\r\n\t]", "_");
@@ -44,6 +54,7 @@ public class UserService {
     // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
     // REQ 1.3 - Uso de salt criptográfico único por usuário
     // REQ 1.4 - Armazenamento correto do hash + salt
+    // REQ 5.1 - Logs de autenticação registrados
     public User register(String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
             log.warn("[REGISTRO] Tentativa de cadastro com e-mail já existente: {}", sanitizeLog(email));
@@ -52,51 +63,47 @@ public class UserService {
 
         User user = new User();
         user.setEmail(email);
-
-        // Hash BCrypt — irreversível, salt único incorporado automaticamente ao hash armazenado
-        String hashedPassword = passwordEncoder.encode(password);
-        user.setPassword(hashedPassword);
+        user.setPassword(passwordEncoder.encode(password));
 
         User saved = userRepository.save(user);
         log.info("[REGISTRO] Novo usuário registrado: {}", sanitizeLog(email));
         return saved;
     }
 
+    // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
     // REQ 1.6 - Validação do 2FA após autenticação primária
     // REQ 1.9 - Sessões com tempo de expiração
     // REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
+    // REQ 5.1 - Logs de autenticação registrados
+    // REQ 5.2 - Logs de falhas e 2FA registrados
+    // Bloqueio temporário de 5 minutos após 5 tentativas consecutivas falhas.
+    // Sessão não é gerada enquanto o segundo fator não for validado.
     public User login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.warn("[LOGIN] Tentativa de login com e-mail não encontrado: {}", sanitizeLog(email));
+                    log.warn("[LOGIN] E-mail não encontrado: {}", sanitizeLog(email));
                     return new RuntimeException("Usuário não encontrado");
                 });
 
-        // REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
-        // Bloqueio temporário de 5 minutos após 5 tentativas consecutivas falhas
         if (user.getAccountLocked()) {
             if (user.getLockTime().plusMinutes(5).isAfter(LocalDateTime.now())) {
-                log.warn("[LOGIN] Tentativa de acesso em conta bloqueada: {}", sanitizeLog(email));
+                log.warn("[LOGIN] Acesso em conta bloqueada: {}", sanitizeLog(email));
                 throw new RuntimeException("Conta bloqueada, tente novamente mais tarde.");
-            } else {
-                user.setAccountLocked(false);
-                user.setFailedAttempts(0);
             }
+            user.setAccountLocked(false);
+            user.setFailedAttempts(0);
         }
 
-        // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
-        // BCrypt.matches compara o input com o hash armazenado sem reversão
         if (!passwordEncoder.matches(password, user.getPassword())) {
             int attempts = user.getFailedAttempts() + 1;
             user.setFailedAttempts(attempts);
 
-            // REQ 1.11 - Proteção contra força bruta (rate limit, bloqueio, atraso)
             if (attempts >= 5) {
                 user.setAccountLocked(true);
                 user.setLockTime(LocalDateTime.now());
                 log.warn("[LOGIN] Conta bloqueada por excesso de tentativas: {}", sanitizeLog(email));
             } else {
-                log.warn("[LOGIN] Senha inválida para: {}. Tentativas: {}", sanitizeLog(email), sanitizeLog(String.valueOf(attempts)));
+                log.warn("[LOGIN] Senha inválida para: {}. Tentativas: {}", sanitizeLog(email), attempts);
             }
 
             userRepository.save(user);
@@ -106,8 +113,6 @@ public class UserService {
         user.setFailedAttempts(0);
         user.setAccountLocked(false);
 
-        // REQ 1.6 - Validação do 2FA após autenticação primária
-        // Sessão não é gerada enquanto o segundo fator não for validado
         if (Boolean.TRUE.equals(user.getTwoFactorEnabled())) {
             userRepository.save(user);
             log.info("[LOGIN] 2FA necessário para: {}", sanitizeLog(email));
@@ -115,7 +120,7 @@ public class UserService {
         }
 
         // REQ 1.9 - Sessões com tempo de expiração
-        // Token UUID gerado com expiração de 10 minutos
+        // Token UUID v4 com expiração de 10 minutos.
         String sessionToken = UUID.randomUUID().toString();
         user.setSessionToken(sessionToken);
         user.setSessionExpiration(LocalDateTime.now().plusMinutes(10));
@@ -126,11 +131,11 @@ public class UserService {
     }
 
     // REQ 1.5 - Autenticação de dois fatores (2FA) implementada
+    // Chave TOTP gerada conforme RFC 6238, compatível com Google Authenticator.
     public String enable2FA(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Geração de chave secreta TOTP compatível com Google Authenticator (RFC 6238)
         GoogleAuthenticator gAuth = new GoogleAuthenticator();
         GoogleAuthenticatorKey key = gAuth.createCredentials();
 
@@ -138,28 +143,26 @@ public class UserService {
         user.setTwoFactorEnabled(true);
         userRepository.save(user);
 
-        log.info("[2FA] 2FA ativado para: {}", sanitizeLog(email));
+        log.info("[2FA] Ativado para: {}", sanitizeLog(email));
         return key.getKey();
     }
 
     // REQ 1.5 - Autenticação de dois fatores (2FA) implementada
     // REQ 1.6 - Validação do 2FA após autenticação primária
     // REQ 1.9 - Sessões com tempo de expiração
+    // REQ 5.2 - Logs de falhas e 2FA registrados
+    // Código TOTP de 6 dígitos validado com janela de 30 segundos.
     public User verify2FA(String email, int code) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         GoogleAuthenticator gAuth = new GoogleAuthenticator();
 
-        // Validação do código TOTP de 6 dígitos baseado em tempo (janela de 30s)
-        boolean isValid = gAuth.authorize(user.getTwoFactorSecret(), code);
-
-        if (!isValid) {
-            log.warn("[2FA] Código 2FA inválido para: {}", sanitizeLog(email));
+        if (!gAuth.authorize(user.getTwoFactorSecret(), code)) {
+            log.warn("[2FA] Código inválido para: {}", sanitizeLog(email));
             throw new RuntimeException("Código 2FA inválido");
         }
 
-        // REQ 1.9 - Sessões com tempo de expiração
         String sessionToken = UUID.randomUUID().toString();
         user.setSessionToken(sessionToken);
         user.setSessionExpiration(LocalDateTime.now().plusMinutes(10));
@@ -173,21 +176,20 @@ public class UserService {
     // REQ 2.2 - Token criptograficamente seguro
     // REQ 2.3 - Token com tempo de expiração
     // REQ 2.6 - Registro de solicitação de recuperação em log
+    // Token UUID v4 (122 bits de entropia), expiração de 10 minutos.
+    // Envio assíncrono via @Async — libera a thread HTTP imediatamente, prevenindo Resource Exhaustion DoS.
     public String requestPasswordReset(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // REQ 2.2 - Token criptograficamente seguro
-        // UUID v4 com 122 bits de entropia — praticamente impossível de adivinhar
         String token = UUID.randomUUID().toString();
         user.setResetToken(token);
-
-        // REQ 2.3 - Token com tempo de expiração
         user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
 
-        sendResetEmail(email, token);
-        log.info("[RESET] Solicitação de recuperação de senha para: {}", sanitizeLog(email));
+        sendResetEmailAsync(email, token);
+
+        log.info("[RESET] Solicitação para: {}", sanitizeLog(email));
         return "E-mail de recuperação enviado";
     }
 
@@ -197,32 +199,28 @@ public class UserService {
     public void resetPassword(String token, String newPassword) {
         User user = userRepository.findByResetToken(token)
                 .orElseThrow(() -> {
-                    log.warn("[RESET] Tentativa de reset com token inválido");
+                    log.warn("[RESET] Token inválido");
                     return new RuntimeException("Token inválido");
                 });
 
-        // REQ 2.5 - Falha correta para token expirado
         if (user.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
             log.warn("[RESET] Token expirado para: {}", sanitizeLog(user.getEmail()));
             throw new RuntimeException("Token expirado");
         }
 
-        // REQ 1.1 - Uso de hash criptográfico seguro para senhas (Argon2, bcrypt ou PBKDF2)
-        String hashedPassword = passwordEncoder.encode(newPassword);
-        user.setPassword(hashedPassword);
-
+        user.setPassword(passwordEncoder.encode(newPassword));
         // REQ 2.4 - Token invalidado após uso
         user.setResetToken(null);
         user.setResetTokenExpiration(null);
         userRepository.save(user);
 
-        log.info("[RESET] Senha redefinida com sucesso para: {}", sanitizeLog(user.getEmail()));
+        log.info("[RESET] Senha redefinida para: {}", sanitizeLog(user.getEmail()));
     }
 
     // REQ 1.9 - Sessões com tempo de expiração
+    // REQ 1.10 - Invalidação de sessão no logout
     public boolean validateSession(String token) {
         User user = userRepository.findBySessionToken(token).orElse(null);
-
         if (user == null) return false;
 
         if (user.getSessionExpiration().isBefore(LocalDateTime.now())) {
@@ -233,15 +231,17 @@ public class UserService {
         return true;
     }
 
-    @Autowired
-    private JavaMailSender mailSender;
-
-    public void sendResetEmail(String email, String token) {
+    // REQ 2.1 - Funcionalidade de recuperação de senha implementada
+    // REQ 5.1 - Logs de autenticação registrados
+    // Processado em pool de threads secundário via @Async — não bloqueia a thread HTTP.
+    @Async
+    public void sendResetEmailAsync(String email, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Recuperação de senha");
         message.setText("Seu token de recuperação é: " + token);
         mailSender.send(message);
+        log.info("[RESET] E-mail enviado para: {}", sanitizeLog(email));
     }
 
     // REQ 4.4 - Registro explícito de consentimento
@@ -261,11 +261,12 @@ public class UserService {
 
     // REQ 4.8 - Funcionalidade de consulta aos dados do titular
     // REQ 4.9 - Funcionalidade de exportação dos dados
+    // REQ 4.3 - Evidência de minimização de dados — campos sensíveis omitidos da exportação.
     public String exportData(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        log.info("[LGPD] Exportação de dados solicitada para: {}", sanitizeLog(email));
+        log.info("[LGPD] Exportação de dados para: {}", sanitizeLog(email));
         return "Dados do titular:\n" +
                 "ID: " + user.getId() + "\n" +
                 "Email: " + user.getEmail() + "\n" +

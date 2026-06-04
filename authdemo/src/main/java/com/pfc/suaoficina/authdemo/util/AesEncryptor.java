@@ -1,94 +1,83 @@
-// Pacote de utilitários da aplicação
 package com.pfc.suaoficina.authdemo.util;
 
-// Importações do JPA para conversão de atributos
-import jakarta.persistence.AttributeConverter;  // Interface para converter entre Java e banco
-import jakarta.persistence.Converter;           // Marca a classe como conversor JPA
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-// Importações do Spring
-import org.springframework.beans.factory.annotation.Value;  // Injeta valores do application.properties
-import org.springframework.stereotype.Component;            // Torna a classe um Bean Spring
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.ByteBuffer;
+import java.security.SecureRandom;
+import java.util.Base64;
 
-// Bibliotecas de criptografia
-import javax.crypto.Cipher;                    // Classe principal de criptografia
-import javax.crypto.spec.SecretKeySpec;        // Especificação da chave secreta
-import java.util.Base64;                       // Codificação Base64 para salvar no banco
-
-// @Converter - Registra no JPA/Hibernate como conversor de atributos
-// @Component - Permite injeção de dependências (@Value funciona por causa disso)
 @Converter
 @Component
 public class AesEncryptor implements AttributeConverter<String, String> {
-    // AttributeConverter<String, String> significa:
-    // - Converte de String (Java) para String (banco de dados)
-    // - Útil para campos como senhas, documentos, dados sensíveis
 
-    private static String SECRET;  // Chave secreta estática (compartilhada entre instâncias)
+    private static final String ALGORITHM = "AES/GCM/NoPadding";
+    private static final int GCM_TAG_LENGTH = 128; // bits
+    private static final int IV_LENGTH = 12;        // bytes por recomendação da NIST SP 800-38D
 
-    // Injeta a chave secreta do arquivo application.properties
-    // Exemplo: encryption.secret=minhasenhasecreta123
+    private static byte[] secretKeyBytes;
+
     @Value("${encryption.secret}")
     public void setSecret(String secret) {
-        // Garante exatamente 16 bytes (128 bits) para AES-128
-        // String.format("%-16s", secret) - Preenche com espaços até 16 caracteres
-        // .substring(0, 16) - Corta se for maior que 16
-        // Isso evita erro de tamanho de chave inválido
-        SECRET = String.format("%-16s", secret).substring(0, 16);
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("encryption.secret não pode ser nulo ou vazio.");
+        }
+        byte[] raw = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        // Deriva chave de 256 bits com padding seguro ou truncamento
+        secretKeyBytes = java.util.Arrays.copyOf(raw, 32);
     }
 
-    // CONVERTE PARA O BANCO DE DADOS (Salvando/Atualizando)
     @Override
     public String convertToDatabaseColumn(String attribute) {
-        if (attribute == null) return null;  // Não criptografa valores nulos
-        
+        if (attribute == null) return null;
         try {
-            // 1. Cria a chave AES a partir do SECRET
-            //    SECRET.getBytes() - converte string em bytes
-            //    "AES" - algoritmo de criptografia
-            SecretKeySpec key = new SecretKeySpec(SECRET.getBytes(), "AES");
-            
-            // 2. Configura o cifrador
-            //    "AES/ECB/PKCS5Padding" - algoritmo/modo/preenchimento
-            //    ECB: Electronic Codebook (modo básico, menos seguro que CBC)
-            //    PKCS5Padding: preenche blocos para tamanho correto
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            
-            // 3. Inicializa em modo de CRIPTOGRAFIA com a chave
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            
-            // 4. Criptografa os bytes do texto original
-            //    E codifica em Base64 para salvar como texto no banco
-            return Base64.getEncoder().encodeToString(
-                cipher.doFinal(attribute.getBytes())
-            );
+            byte[] iv = new byte[IV_LENGTH];
+            new SecureRandom().nextBytes(iv);
+
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE,
+                    new SecretKeySpec(secretKeyBytes, "AES"),
+                    new GCMParameterSpec(GCM_TAG_LENGTH, iv));
+
+            byte[] encrypted = cipher.doFinal(
+                    attribute.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+            // Layout persistido IV (12 bytes) e ciphertext + tag GCM
+            ByteBuffer buffer = ByteBuffer.allocate(IV_LENGTH + encrypted.length);
+            buffer.put(iv);
+            buffer.put(encrypted);
+
+            return Base64.getEncoder().encodeToString(buffer.array());
         } catch (Exception e) {
-            // Se falhar, lança exceção com contexto claro
-            throw new RuntimeException("Erro ao criptografar campo", e);
+            throw new RuntimeException("Falha na cifragem do atributo.", e);
         }
     }
 
-    // CONVERTE DO BANCO DE DADOS (Lendo do banco)
     @Override
     public String convertToEntityAttribute(String dbData) {
-        if (dbData == null) return null;  // Não descriptografa valores nulos
-        
+        if (dbData == null) return null;
         try {
-            // 1. Cria a mesma chave usada na criptografia
-            SecretKeySpec key = new SecretKeySpec(SECRET.getBytes(), "AES");
-            
-            // 2. Configura o cifrador (mesma configuração)
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            
-            // 3. Inicializa em modo de DESCRIPTOGRAFIA
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            
-            // 4. Decodifica de Base64 e descriptografa
-            //    Converte bytes de volta para String
-            return new String(
-                cipher.doFinal(Base64.getDecoder().decode(dbData))
-            );
+            ByteBuffer buffer = ByteBuffer.wrap(Base64.getDecoder().decode(dbData));
+
+            byte[] iv = new byte[IV_LENGTH];
+            buffer.get(iv);
+
+            byte[] encrypted = new byte[buffer.remaining()];
+            buffer.get(encrypted);
+
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE,
+                    new SecretKeySpec(secretKeyBytes, "AES"),
+                    new GCMParameterSpec(GCM_TAG_LENGTH, iv));
+
+            return new String(cipher.doFinal(encrypted), java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao descriptografar campo", e);
+            throw new RuntimeException("Falha na decifragem do atributo.", e);
         }
     }
 }

@@ -9,12 +9,14 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
+// REQ 3.1 - Comunicação protegida por TLS/HTTPS
+// REQ 3.2 - Bloqueio de conexões não seguras
+// REQ 3.8 - Justificativa técnica das escolhas
 @Configuration
 public class SecurityConfig {
 
-    // REQ 3.1 - Comunicação protegida por TLS/HTTPS
-    // REQ 3.2 - Bloqueio de conexões não seguras
-    // Rotas públicas declaradas explicitamente — qualquer rota não listada exige autenticação
+    // Rotas públicas declaradas explicitamente — qualquer rota não listada exige autenticação.
+    // CSRF desabilitado pois a API é stateless (tokens UUID no header Authorization).
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -34,21 +36,20 @@ public class SecurityConfig {
                                 "/auth/revoke-consent",
                                 "/auth/delete-account"
                         ).permitAll()
-                        // REQ 3.2 - Bloqueio de conexões não seguras
-                        // Qualquer rota não listada acima requer autenticação
                         .anyRequest().authenticated()
                 );
         return http.build();
     }
 
+    // CORS restrito às origens do frontend — impede requisições de domínios não autorizados.
     // REQ 3.1 - Comunicação protegida por TLS/HTTPS
-    // CORS restrito às origens conhecidas do frontend — impede requisições de domínios não autorizados
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "https://localhost:3000",
                 "https://localhost:5500",
+                "http://localhost:5500",
                 "http://localhost:63342"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));

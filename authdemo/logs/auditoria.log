@@ -1,19 +1,68 @@
-2026-04-29T18:35:24.458-03:00  INFO 19060 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Starting AuthdemoApplication using Java 25 with PID 19060 (C:\Users\levas\workspace\Java projects\authdemo\target\classes started by levas in C:\Users\levas\workspace\Java projects\authdemo)
-2026-04-29T18:35:24.461-03:00  INFO 19060 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : No active profile set, falling back to 1 default profile: "default"
-2026-04-29T18:35:25.000-03:00  INFO 19060 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-29T18:35:25.046-03:00  INFO 19060 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 38 ms. Found 1 JPA repository interface.
-2026-04-29T18:35:25.570-03:00  INFO 19060 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8443 (https)
-2026-04-29T18:35:25.585-03:00  INFO 19060 --- [authdemo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-04-29T18:35:25.585-03:00  INFO 19060 --- [authdemo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
-2026-04-29T18:35:25.641-03:00  INFO 19060 --- [authdemo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1135 ms
-2026-04-29T18:35:25.792-03:00  INFO 19060 --- [authdemo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-04-29T18:35:25.837-03:00  INFO 19060 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
-2026-04-29T18:35:26.241-03:00  INFO 19060 --- [authdemo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-29T18:35:26.269-03:00  INFO 19060 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-29T18:35:26.416-03:00  INFO 19060 --- [authdemo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6ef4297d
-2026-04-29T18:35:26.417-03:00  INFO 19060 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-29T18:35:26.454-03:00  WARN 19060 --- [authdemo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-29T18:35:26.478-03:00  INFO 19060 --- [authdemo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-06-04T15:07:30.634-03:00  INFO 17380 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Starting AuthdemoApplication using Java 25 with PID 17380 (C:\Users\levas\workspace\Java projects\authdemo\target\classes started by levas in C:\Users\levas\workspace\Java projects\authdemo)
+2026-06-04T15:07:30.642-03:00  INFO 17380 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T15:07:31.380-03:00  INFO 17380 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T15:07:31.440-03:00  INFO 17380 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 51 ms. Found 1 JPA repository interface.
+2026-06-04T15:07:32.055-03:00  WARN 17380 --- [authdemo] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Unable to start web server
+2026-06-04T15:07:32.062-03:00  INFO 17380 --- [authdemo] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-06-04T15:07:32.079-03:00 ERROR 17380 --- [authdemo] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.context.ApplicationContextException: Unable to start web server
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:167) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:615) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at com.pfc.suaoficina.authdemo.AuthdemoApplication.main(AuthdemoApplication.java:10) ~[classes/:na]
+Caused by: java.lang.IllegalStateException: Unable to create key store: Could not load store from 'classpath:keystore.p12'
+	at org.springframework.boot.ssl.jks.JksSslStoreBundle.createKeyStore(JksSslStoreBundle.java:114) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.ssl.jks.JksSslStoreBundle.lambda$new$0(JksSslStoreBundle.java:77) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.util.function.SingletonSupplier.get(SingletonSupplier.java:113) ~[spring-core-7.0.6.jar:7.0.6]
+	at org.springframework.boot.ssl.jks.JksSslStoreBundle.getKeyStore(JksSslStoreBundle.java:83) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.web.server.WebServerSslBundle.createKeyStore(WebServerSslBundle.java:159) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.web.server.WebServerSslBundle.createStoreBundle(WebServerSslBundle.java:149) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.web.server.WebServerSslBundle.get(WebServerSslBundle.java:144) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.web.server.AbstractConfigurableWebServerFactory.getSslBundle(AbstractConfigurableWebServerFactory.java:201) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.tomcat.TomcatWebServerFactory.customizeSsl(TomcatWebServerFactory.java:437) ~[spring-boot-tomcat-4.0.5.jar:4.0.5]
+	at org.springframework.boot.tomcat.TomcatWebServerFactory.customizeConnector(TomcatWebServerFactory.java:413) ~[spring-boot-tomcat-4.0.5.jar:4.0.5]
+	at org.springframework.boot.tomcat.TomcatWebServerFactory.createTomcat(TomcatWebServerFactory.java:383) ~[spring-boot-tomcat-4.0.5.jar:4.0.5]
+	at org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory.getWebServer(TomcatServletWebServerFactory.java:164) ~[spring-boot-tomcat-4.0.5.jar:4.0.5]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.createWebServer(ServletWebServerApplicationContext.java:190) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:164) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	... 8 common frames omitted
+Caused by: java.lang.IllegalStateException: Could not load store from 'classpath:keystore.p12'
+	at org.springframework.boot.ssl.jks.JksSslStoreBundle.loadKeyStore(JksSslStoreBundle.java:142) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.ssl.jks.JksSslStoreBundle.createKeyStore(JksSslStoreBundle.java:109) ~[spring-boot-4.0.5.jar:4.0.5]
+	... 21 common frames omitted
+Caused by: java.io.IOException: keystore password was incorrect
+	at java.base/sun.security.pkcs12.PKCS12KeyStore.engineLoad(PKCS12KeyStore.java:2109) ~[na:na]
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:226) ~[na:na]
+	at java.base/java.security.KeyStore.load(KeyStore.java:1502) ~[na:na]
+	at org.springframework.boot.ssl.jks.JksSslStoreBundle.loadKeyStore(JksSslStoreBundle.java:138) ~[spring-boot-4.0.5.jar:4.0.5]
+	... 22 common frames omitted
+Caused by: java.security.UnrecoverableKeyException: failed to decrypt safe contents entry: javax.crypto.BadPaddingException: Given final block not properly padded. Such issues can arise if a bad key is used during decryption.
+	... 26 common frames omitted
+
+2026-06-04T15:09:40.034-03:00  INFO 3604 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Starting AuthdemoApplication using Java 25 with PID 3604 (C:\Users\levas\workspace\Java projects\authdemo\target\classes started by levas in C:\Users\levas\workspace\Java projects\authdemo)
+2026-06-04T15:09:40.037-03:00  INFO 3604 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T15:09:40.733-03:00  INFO 3604 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T15:09:40.792-03:00  INFO 3604 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 50 ms. Found 1 JPA repository interface.
+2026-06-04T15:09:41.514-03:00  INFO 3604 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8443 (https)
+2026-06-04T15:09:41.534-03:00  INFO 3604 --- [authdemo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T15:09:41.534-03:00  INFO 3604 --- [authdemo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T15:09:41.607-03:00  INFO 3604 --- [authdemo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1518 ms
+2026-06-04T15:09:41.826-03:00  INFO 3604 --- [authdemo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-04T15:09:41.898-03:00  INFO 3604 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-04T15:09:42.459-03:00  INFO 3604 --- [authdemo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T15:09:42.499-03:00  INFO 3604 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T15:09:42.681-03:00  INFO 3604 --- [authdemo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@38968752
+2026-06-04T15:09:42.682-03:00  INFO 3604 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T15:09:42.723-03:00  WARN 3604 --- [authdemo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T15:09:42.753-03:00  INFO 3604 --- [authdemo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [jdbc:postgresql://localhost:5432/db_suaoficina]
 	Database driver: PostgreSQL JDBC Driver
 	Database dialect: PostgreSQLDialect
@@ -25,28 +74,302 @@
 	Pool: DataSourceConnectionProvider
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-04-29T18:35:27.187-03:00  INFO 19060 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-29T18:35:27.266-03:00  INFO 19060 --- [authdemo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-29T18:35:27.330-03:00  INFO 19060 --- [authdemo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-29T18:35:27.507-03:00  WARN 19060 --- [authdemo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-29T18:35:27.571-03:00  WARN 19060 --- [authdemo] [main] .s.a.UserDetailsServiceAutoConfiguration : 
+2026-06-04T15:09:43.608-03:00  INFO 3604 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T15:09:43.727-03:00  INFO 3604 --- [authdemo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:09:43.806-03:00  INFO 3604 --- [authdemo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T15:09:44.044-03:00  WARN 3604 --- [authdemo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T15:09:44.129-03:00  WARN 3604 --- [authdemo] [main] .s.a.UserDetailsServiceAutoConfiguration : 
 
-Using generated security password: 505f2bdf-2546-4b0f-9a4c-7032bb788785
+Using generated security password: fdce35e0-c1c3-4b94-aa08-471962e43938
 
 This generated password is for development use only. Your security configuration must be updated before running your application in production.
 
-2026-04-29T18:35:27.577-03:00  INFO 19060 --- [authdemo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-29T18:35:28.065-03:00  INFO 19060 --- [authdemo] [main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [Set directly - location unknown] using alias [authdemo] with trust store [null]
-2026-04-29T18:35:28.078-03:00  INFO 19060 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8443 (https) with context path '/'
-2026-04-29T18:35:28.082-03:00  INFO 19060 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Started AuthdemoApplication in 4.025 seconds (process running for 4.472)
-2026-04-29T18:35:43.076-03:00  INFO 19060 --- [authdemo] [https-jsse-nio-8443-exec-9] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-04-29T18:35:43.076-03:00  INFO 19060 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-04-29T18:35:43.077-03:00  INFO 19060 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2026-04-29T18:35:43.090-03:00  WARN 19060 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.w.s.h.HandlerMappingIntrospector     : Cache miss for REQUEST dispatch to '/auth/login' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
-2026-04-29T18:35:43.539-03:00  WARN 19060 --- [authdemo] [https-jsse-nio-8443-exec-9] c.p.s.authdemo.service.UserService       : [LOGIN] Senha inválida para: levasi.leonardo55@gmail.com. Tentativas: 1
-2026-04-29T18:35:46.810-03:00  WARN 19060 --- [authdemo] [https-jsse-nio-8443-exec-5] c.p.s.authdemo.service.UserService       : [LOGIN] Senha inválida para: levasi.leonardo55@gmail.com. Tentativas: 2
-2026-04-29T19:02:35.957-03:00  INFO 19060 --- [authdemo] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
-2026-04-29T19:02:35.963-03:00  INFO 19060 --- [authdemo] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
-2026-04-29T19:02:35.966-03:00  INFO 19060 --- [authdemo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-29T19:02:35.968-03:00  INFO 19060 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-29T19:02:35.969-03:00  INFO 19060 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04T15:09:44.137-03:00  INFO 3604 --- [authdemo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T15:09:44.694-03:00  INFO 3604 --- [authdemo] [main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [Set directly - location unknown] using alias [authdemo] with trust store [null]
+2026-06-04T15:09:44.711-03:00  INFO 3604 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8443 (https) with context path '/'
+2026-06-04T15:09:44.717-03:00  INFO 3604 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Started AuthdemoApplication in 5.202 seconds (process running for 5.765)
+2026-06-04T15:10:14.515-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-9] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T15:10:14.516-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T15:10:14.517-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-04T15:10:15.087-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-9] c.p.s.authdemo.service.UserService       : [REGISTRO] Novo usuário registrado: levasi.leonardo55@gmail.com
+2026-06-04T15:10:15.172-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-10] c.p.s.authdemo.service.UserService       : [LGPD] Consentimento registrado para: levasi.leonardo55@gmail.com
+2026-06-04T15:10:22.049-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-1] c.p.s.authdemo.service.UserService       : [LOGIN] Login bem-sucedido: levasi.leonardo55@gmail.com
+2026-06-04T15:10:31.992-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-6] c.p.s.authdemo.service.UserService       : [2FA] 2FA ativado para: levasi.leonardo55@gmail.com
+2026-06-04T15:11:44.610-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-6] c.p.s.authdemo.service.UserService       : [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04T15:11:58.721-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-8] c.p.s.authdemo.service.UserService       : [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04T15:12:11.353-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-4] c.p.s.authdemo.service.UserService       : [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04T15:12:59.587-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-10] c.p.s.authdemo.service.UserService       : [REGISTRO] Novo usuário registrado: levasi.leonardo@gmail.com
+2026-06-04T15:12:59.595-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-1] c.p.s.authdemo.service.UserService       : [LGPD] Consentimento registrado para: levasi.leonardo@gmail.com
+2026-06-04T15:13:10.925-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-3] c.p.s.authdemo.service.UserService       : [LOGIN] Login bem-sucedido: levasi.leonardo@gmail.com
+2026-06-04T15:13:21.388-03:00  INFO 3604 --- [authdemo] [https-jsse-nio-8443-exec-6] c.p.s.authdemo.service.UserService       : [LGPD] Conta deletada: levasi.leonardo@gmail.com
+2026-06-04T15:13:29.706-03:00  INFO 3604 --- [authdemo] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T15:13:29.712-03:00  INFO 3604 --- [authdemo] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T15:13:29.715-03:00  INFO 3604 --- [authdemo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:13:29.717-03:00  INFO 3604 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-04T15:13:29.721-03:00  INFO 3604 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04T15:15:55.723-03:00  INFO 3176 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Starting AuthdemoApplication using Java 25 with PID 3176 (C:\Users\levas\workspace\Java projects\authdemo\target\classes started by levas in C:\Users\levas\workspace\Java projects\authdemo)
+2026-06-04T15:15:55.726-03:00  INFO 3176 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T15:15:56.408-03:00  INFO 3176 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T15:15:56.469-03:00  INFO 3176 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 52 ms. Found 1 JPA repository interface.
+2026-06-04T15:15:57.113-03:00  INFO 3176 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8443 (https)
+2026-06-04T15:15:57.128-03:00  INFO 3176 --- [authdemo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T15:15:57.129-03:00  INFO 3176 --- [authdemo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T15:15:57.196-03:00  INFO 3176 --- [authdemo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1418 ms
+2026-06-04T15:15:57.385-03:00  INFO 3176 --- [authdemo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-04T15:15:57.440-03:00  INFO 3176 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-04T15:15:57.948-03:00  INFO 3176 --- [authdemo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T15:15:57.980-03:00  INFO 3176 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T15:15:58.155-03:00  INFO 3176 --- [authdemo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@620572db
+2026-06-04T15:15:58.157-03:00  INFO 3176 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T15:15:58.191-03:00  WARN 3176 --- [authdemo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T15:15:58.220-03:00  INFO 3176 --- [authdemo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/db_suaoficina]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.3
+	Default catalog/schema: db_suaoficina/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T15:15:59.007-03:00  INFO 3176 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T15:15:59.073-03:00  INFO 3176 --- [authdemo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:15:59.146-03:00  INFO 3176 --- [authdemo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T15:15:59.359-03:00  WARN 3176 --- [authdemo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T15:15:59.437-03:00  WARN 3176 --- [authdemo] [main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: b628e973-6652-4089-8469-794299408c35
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T15:15:59.443-03:00  INFO 3176 --- [authdemo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T15:15:59.972-03:00  INFO 3176 --- [authdemo] [main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [Set directly - location unknown] using alias [authdemo] with trust store [null]
+2026-06-04T15:15:59.989-03:00  INFO 3176 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8443 (https) with context path '/'
+2026-06-04T15:15:59.996-03:00  INFO 3176 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Started AuthdemoApplication in 4.768 seconds (process running for 5.367)
+2026-06-04T15:16:32.910-03:00  INFO 3176 --- [authdemo] [https-jsse-nio-8443-exec-9] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T15:16:32.910-03:00  INFO 3176 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T15:16:32.912-03:00  INFO 3176 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-04T15:16:33.427-03:00  INFO 3176 --- [authdemo] [https-jsse-nio-8443-exec-9] c.p.s.authdemo.service.UserService       : [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04T15:16:46.234-03:00  INFO 3176 --- [authdemo] [https-jsse-nio-8443-exec-10] c.p.s.authdemo.service.UserService       : [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04T15:25:35.677-03:00  INFO 3176 --- [authdemo] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T15:25:35.682-03:00  INFO 3176 --- [authdemo] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T15:25:35.685-03:00  INFO 3176 --- [authdemo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:25:35.687-03:00  INFO 3176 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-04T15:25:35.690-03:00  INFO 3176 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04T15:25:59.033-03:00  INFO 13040 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Starting AuthdemoApplication using Java 25 with PID 13040 (C:\Users\levas\workspace\Java projects\authdemo\target\classes started by levas in C:\Users\levas\workspace\Java projects\authdemo)
+2026-06-04T15:25:59.036-03:00  INFO 13040 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T15:25:59.723-03:00  INFO 13040 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T15:25:59.779-03:00  INFO 13040 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 48 ms. Found 1 JPA repository interface.
+2026-06-04T15:26:00.435-03:00  INFO 13040 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8443 (https)
+2026-06-04T15:26:00.451-03:00  INFO 13040 --- [authdemo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T15:26:00.452-03:00  INFO 13040 --- [authdemo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T15:26:00.518-03:00  INFO 13040 --- [authdemo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1420 ms
+2026-06-04T15:26:00.707-03:00  INFO 13040 --- [authdemo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-04T15:26:00.757-03:00  INFO 13040 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-04T15:26:01.239-03:00  INFO 13040 --- [authdemo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T15:26:01.272-03:00  INFO 13040 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T15:26:01.445-03:00  INFO 13040 --- [authdemo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1d5048d1
+2026-06-04T15:26:01.446-03:00  INFO 13040 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T15:26:01.478-03:00  WARN 13040 --- [authdemo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T15:26:01.505-03:00  INFO 13040 --- [authdemo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/db_suaoficina]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.3
+	Default catalog/schema: db_suaoficina/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T15:26:02.287-03:00  INFO 13040 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T15:26:02.352-03:00  INFO 13040 --- [authdemo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:26:02.427-03:00  INFO 13040 --- [authdemo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T15:26:02.636-03:00  WARN 13040 --- [authdemo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T15:26:02.707-03:00  WARN 13040 --- [authdemo] [main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: e7559236-1bfb-4b0b-af78-0e92e10a3330
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T15:26:02.713-03:00  INFO 13040 --- [authdemo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T15:26:03.219-03:00  INFO 13040 --- [authdemo] [main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [Set directly - location unknown] using alias [authdemo] with trust store [null]
+2026-06-04T15:26:03.234-03:00  INFO 13040 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8443 (https) with context path '/'
+2026-06-04T15:26:03.240-03:00  INFO 13040 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Started AuthdemoApplication in 4.7 seconds (process running for 5.232)
+2026-06-04T15:26:20.886-03:00  INFO 13040 --- [authdemo] [https-jsse-nio-8443-exec-7] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T15:26:20.886-03:00  INFO 13040 --- [authdemo] [https-jsse-nio-8443-exec-7] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T15:26:20.888-03:00  INFO 13040 --- [authdemo] [https-jsse-nio-8443-exec-7] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-04T15:26:21.422-03:00  INFO 13040 --- [authdemo] [https-jsse-nio-8443-exec-7] c.p.s.authdemo.service.UserService       : [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04T15:26:30.886-03:00  INFO 13040 --- [authdemo] [https-jsse-nio-8443-exec-10] c.p.s.authdemo.service.UserService       : [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04T15:28:30.916-03:00  INFO 13040 --- [authdemo] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T15:28:30.923-03:00  INFO 13040 --- [authdemo] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T15:28:30.926-03:00  INFO 13040 --- [authdemo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:28:30.929-03:00  INFO 13040 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-04T15:28:30.931-03:00  INFO 13040 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04T15:28:43.973-03:00  INFO 2244 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Starting AuthdemoApplication using Java 25 with PID 2244 (C:\Users\levas\workspace\Java projects\authdemo\target\classes started by levas in C:\Users\levas\workspace\Java projects\authdemo)
+2026-06-04T15:28:43.978-03:00  INFO 2244 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T15:28:45.177-03:00  INFO 2244 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T15:28:45.233-03:00  INFO 2244 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 47 ms. Found 1 JPA repository interface.
+2026-06-04T15:28:45.865-03:00  INFO 2244 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8443 (https)
+2026-06-04T15:28:45.882-03:00  INFO 2244 --- [authdemo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T15:28:45.883-03:00  INFO 2244 --- [authdemo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T15:28:45.952-03:00  INFO 2244 --- [authdemo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1862 ms
+2026-06-04T15:28:46.144-03:00  INFO 2244 --- [authdemo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-04T15:28:46.196-03:00  INFO 2244 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-04T15:28:46.689-03:00  INFO 2244 --- [authdemo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T15:28:46.722-03:00  INFO 2244 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T15:28:46.906-03:00  INFO 2244 --- [authdemo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1d5048d1
+2026-06-04T15:28:46.907-03:00  INFO 2244 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T15:28:46.943-03:00  WARN 2244 --- [authdemo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T15:28:46.968-03:00  INFO 2244 --- [authdemo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/db_suaoficina]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.3
+	Default catalog/schema: db_suaoficina/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T15:28:47.755-03:00  INFO 2244 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T15:28:47.820-03:00  INFO 2244 --- [authdemo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:28:47.891-03:00  INFO 2244 --- [authdemo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T15:28:48.085-03:00  WARN 2244 --- [authdemo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T15:28:48.171-03:00  WARN 2244 --- [authdemo] [main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 169d734c-5dc4-463e-84df-a9e5ff59ed5c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T15:28:48.178-03:00  INFO 2244 --- [authdemo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T15:28:48.676-03:00  INFO 2244 --- [authdemo] [main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [Set directly - location unknown] using alias [authdemo] with trust store [null]
+2026-06-04T15:28:48.692-03:00  INFO 2244 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8443 (https) with context path '/'
+2026-06-04T15:28:48.697-03:00  INFO 2244 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Started AuthdemoApplication in 5.323 seconds (process running for 5.899)
+2026-06-04T15:34:49.706-03:00  INFO 2244 --- [authdemo] [https-jsse-nio-8443-exec-9] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T15:34:49.706-03:00  INFO 2244 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T15:34:49.708-03:00  INFO 2244 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-04T15:34:50.235-03:00  INFO 2244 --- [authdemo] [https-jsse-nio-8443-exec-9] c.p.s.authdemo.service.UserService       : [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04T15:35:08.510-03:00  INFO 2244 --- [authdemo] [https-jsse-nio-8443-exec-10] c.p.s.authdemo.service.UserService       : [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04T15:36:12.174-03:00  INFO 2244 --- [authdemo] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T15:36:12.180-03:00  INFO 2244 --- [authdemo] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T15:36:12.183-03:00  INFO 2244 --- [authdemo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:36:12.185-03:00  INFO 2244 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-04T15:36:12.189-03:00  INFO 2244 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04T15:43:48.482-03:00  INFO 17072 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Starting AuthdemoApplication using Java 25 with PID 17072 (C:\Users\levas\workspace\Java projects\authdemo\target\classes started by levas in C:\Users\levas\workspace\Java projects\authdemo)
+2026-06-04T15:43:48.487-03:00  INFO 17072 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T15:43:49.251-03:00  INFO 17072 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T15:43:49.314-03:00  INFO 17072 --- [authdemo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 54 ms. Found 1 JPA repository interface.
+2026-06-04T15:43:50.010-03:00  INFO 17072 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8443 (https)
+2026-06-04T15:43:50.027-03:00  INFO 17072 --- [authdemo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T15:43:50.027-03:00  INFO 17072 --- [authdemo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-04T15:43:50.093-03:00  INFO 17072 --- [authdemo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1544 ms
+2026-06-04T15:43:50.298-03:00  INFO 17072 --- [authdemo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-04T15:43:50.352-03:00  INFO 17072 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-04T15:43:50.855-03:00  INFO 17072 --- [authdemo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T15:43:50.887-03:00  INFO 17072 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T15:43:51.056-03:00  INFO 17072 --- [authdemo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@54ca9420
+2026-06-04T15:43:51.058-03:00  INFO 17072 --- [authdemo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T15:43:51.097-03:00  WARN 17072 --- [authdemo] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T15:43:51.125-03:00  INFO 17072 --- [authdemo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/db_suaoficina]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.3
+	Default catalog/schema: db_suaoficina/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T15:43:51.928-03:00  INFO 17072 --- [authdemo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T15:43:51.986-03:00  INFO 17072 --- [authdemo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:43:52.064-03:00  INFO 17072 --- [authdemo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T15:43:52.291-03:00  WARN 17072 --- [authdemo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T15:43:52.368-03:00  WARN 17072 --- [authdemo] [main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 78b07ec6-c0b1-484d-b075-df6bc8f2088e
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-04T15:43:52.375-03:00  INFO 17072 --- [authdemo] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-04T15:43:52.917-03:00  INFO 17072 --- [authdemo] [main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [Set directly - location unknown] using alias [authdemo] with trust store [null]
+2026-06-04T15:43:52.934-03:00  INFO 17072 --- [authdemo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8443 (https) with context path '/'
+2026-06-04T15:43:52.941-03:00  INFO 17072 --- [authdemo] [main] c.p.s.authdemo.AuthdemoApplication       : Started AuthdemoApplication in 4.932 seconds (process running for 5.448)
+2026-06-04T15:44:06.566-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-9] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T15:44:06.566-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T15:44:06.567-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-04T15:44:07.094-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-9] c.p.s.authdemo.service.UserService       : [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04T15:44:23.465-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-10] c.p.s.authdemo.service.UserService       : [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04T15:44:36.604-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-3] c.p.s.authdemo.service.UserService       : [LGPD] Exportação de dados para: levasi.leonardo55@gmail.com
+2026-06-04T15:44:49.203-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-6] c.p.s.authdemo.service.UserService       : [LGPD] Exportação de dados para: levasi.leonardo55@gmail.com
+2026-06-04T15:50:12.128-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-6] c.p.s.authdemo.service.UserService       : [REGISTRO] Novo usuário registrado: levasi.leo@mail.com
+2026-06-04T15:50:12.137-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-4] c.p.s.authdemo.service.UserService       : [LGPD] Consentimento registrado para: levasi.leo@mail.com
+2026-06-04T15:50:19.150-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-7] c.p.s.authdemo.service.UserService       : [LOGIN] Login bem-sucedido: levasi.leo@mail.com
+2026-06-04T15:50:22.710-03:00  INFO 17072 --- [authdemo] [https-jsse-nio-8443-exec-5] c.p.s.authdemo.service.UserService       : [LGPD] Conta deletada: levasi.leo@mail.com
+2026-06-04T15:50:29.870-03:00  WARN 17072 --- [authdemo] [https-jsse-nio-8443-exec-9] c.p.s.authdemo.service.UserService       : [LOGIN] E-mail não encontrado: levasi.leo@mail.com
+2026-06-04T15:50:37.070-03:00  INFO 17072 --- [authdemo] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T15:50:37.075-03:00  INFO 17072 --- [authdemo] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-04T15:50:37.078-03:00  INFO 17072 --- [authdemo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T15:50:37.080-03:00  INFO 17072 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-04T15:50:37.083-03:00  INFO 17072 --- [authdemo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04 16:07:06 [https-jsse-nio-8443-exec-10] INFO  c.p.s.authdemo.service.UserService - [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04 16:07:36 [https-jsse-nio-8443-exec-9] INFO  c.p.s.authdemo.service.UserService - [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04 16:07:46 [https-jsse-nio-8443-exec-4] INFO  c.p.s.authdemo.service.UserService - [LGPD] Exportação de dados para: levasi.leonardo55@gmail.com
+2026-06-04 16:07:51 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [LGPD] Consentimento revogado para: levasi.leonardo55@gmail.com
+2026-06-04 16:08:19 [https-jsse-nio-8443-exec-6] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:08:19 [https-jsse-nio-8443-exec-6] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:08:56 [https-jsse-nio-8443-exec-7] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:08:59 [https-jsse-nio-8443-exec-6] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:00 [https-jsse-nio-8443-exec-3] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:05 [https-jsse-nio-8443-exec-4] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:06 [https-jsse-nio-8443-exec-2] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:08 [https-jsse-nio-8443-exec-1] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:14 [https-jsse-nio-8443-exec-9] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:28 [https-jsse-nio-8443-exec-8] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:29 [https-jsse-nio-8443-exec-6] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:09:44 [https-jsse-nio-8443-exec-3] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:12:54 [https-jsse-nio-8443-exec-3] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:20:04 [https-jsse-nio-8443-exec-9] INFO  c.p.s.authdemo.service.UserService - [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04 16:20:19 [https-jsse-nio-8443-exec-10] INFO  c.p.s.authdemo.service.UserService - [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04 16:20:26 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [LGPD] Exportação de dados para: levasi.leonardo55@gmail.com
+2026-06-04 16:20:29 [https-jsse-nio-8443-exec-5] INFO  c.p.s.authdemo.service.UserService - [LGPD] Consentimento revogado para: levasi.leonardo55@gmail.com
+2026-06-04 16:20:31 [https-jsse-nio-8443-exec-6] INFO  c.p.s.authdemo.service.UserService - [LGPD] Consentimento revogado para: levasi.leonardo55@gmail.com
+2026-06-04 16:21:00 [https-jsse-nio-8443-exec-8] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:21:00 [https-jsse-nio-8443-exec-8] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:22:12 [https-jsse-nio-8443-exec-8] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:22:18 [https-jsse-nio-8443-exec-6] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:22:19 [https-jsse-nio-8443-exec-5] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:22:40 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:22:40 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:23:27 [https-jsse-nio-8443-exec-5] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:23:28 [https-jsse-nio-8443-exec-3] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:26:16 [https-jsse-nio-8443-exec-2] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:26:16 [https-jsse-nio-8443-exec-2] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:32:40 [https-jsse-nio-8443-exec-2] INFO  c.p.s.authdemo.service.UserService - [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04 16:33:00 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04 16:33:20 [https-jsse-nio-8443-exec-5] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:33:20 [https-jsse-nio-8443-exec-5] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:36:22 [https-jsse-nio-8443-exec-5] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:36:46 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:36:46 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:37:17 [https-jsse-nio-8443-exec-5] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:37:18 [https-jsse-nio-8443-exec-3] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:38:25 [https-jsse-nio-8443-exec-9] INFO  c.p.s.authdemo.service.UserService - [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04 16:38:38 [https-jsse-nio-8443-exec-10] INFO  c.p.s.authdemo.service.UserService - [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04 16:39:08 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:39:08 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:39:36 [https-jsse-nio-8443-exec-5] WARN  c.p.s.authdemo.service.UserService - [RESET] Token inválido
+2026-06-04 16:46:44 [https-jsse-nio-8443-exec-9] INFO  c.p.s.authdemo.service.UserService - [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04 16:46:51 [https-jsse-nio-8443-exec-10] INFO  c.p.s.authdemo.service.UserService - [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
+2026-06-04 16:47:18 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] E-mail enviado para: levasi.leonardo55@gmail.com
+2026-06-04 16:47:18 [https-jsse-nio-8443-exec-3] INFO  c.p.s.authdemo.service.UserService - [RESET] Solicitação para: levasi.leonardo55@gmail.com
+2026-06-04 16:48:04 [https-jsse-nio-8443-exec-5] INFO  c.p.s.authdemo.service.UserService - [RESET] Senha redefinida para: levasi.leonardo55@gmail.com
+2026-06-04 16:48:12 [https-jsse-nio-8443-exec-6] WARN  c.p.s.authdemo.service.UserService - [LOGIN] Senha inválida para: levasi.leonardo55@gmail.com. Tentativas: 1
+2026-06-04 16:48:16 [https-jsse-nio-8443-exec-5] INFO  c.p.s.authdemo.service.UserService - [LOGIN] 2FA necessário para: levasi.leonardo55@gmail.com
+2026-06-04 16:48:26 [https-jsse-nio-8443-exec-6] INFO  c.p.s.authdemo.service.UserService - [2FA] Verificação bem-sucedida para: levasi.leonardo55@gmail.com
