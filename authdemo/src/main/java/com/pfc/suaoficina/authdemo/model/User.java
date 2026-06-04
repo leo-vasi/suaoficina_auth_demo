@@ -40,11 +40,8 @@ public class User {
     private String twoFactorSecret;
 
     // REQ 2.2 - Token criptograficamente seguro
-    // REQ 3.4 - Dados sensíveis criptografados em repouso
-    // REQ 3.5 - Uso de algoritmo criptográfico adequado (ex.: AES)
     // REQ 4.3 - Evidência de minimização de dados — @JsonIgnore impede exposição em respostas JSON
     @JsonIgnore
-    @Convert(converter = AesEncryptor.class)
     private String resetToken;
 
     // REQ 2.3 - Token com tempo de expiração

@@ -65,6 +65,7 @@
 			<version>1.5.0</version>
 		</dependency>
 
+
 		<!-- Spring Boot Mail: envio de e-mails (SMTP), utilizado para recuperação de senha -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -101,6 +102,20 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Logback adicionado para subir logs no database -->
+		<dependency>
+			<groupId>ch.qos.logback.db</groupId>
+			<artifactId>logback-classic-db</artifactId>
+			<version>1.2.11.1</version>
+		</dependency>
+
+		<!-- Dependência relacionada ao rate limiting com Bucket4j -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>8.10.1</version>
+		</dependency>
+
 		<!-- Testes de controllers REST (MockMvc, etc.) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -108,6 +123,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 
 	<!-- Configuração do processo de build -->
 	<build>
